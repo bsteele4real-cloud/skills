@@ -6,9 +6,9 @@ Fine-tune voice characteristics for your use case.
 
 | Parameter | Range | Default | Description |
 |-----------|-------|---------|-------------|
-| `stability` | 0.0 - 1.0 | 0.5 | Higher = more consistent, Lower = more expressive/variable |
-| `similarity_boost` | 0.0 - 1.0 | 0.75 | Higher = closer to original voice, may amplify artifacts |
-| `style` | 0.0 - 1.0 | 0.0 | Style exaggeration (multilingual v2 models only) |
+| `stability` | 0.0 - 1.0 | 0.5 | Higher = more consistent, Lower = more expressive |
+| `similarity_boost` | 0.0 - 1.0 | 0.75 | Higher = closer to original, may amplify artifacts |
+| `style` | 0.0 - 1.0 | 0.0 | Style exaggeration (v2+ and v3 models) |
 | `use_speaker_boost` | boolean | true | Enhances voice clarity and similarity |
 
 ## Python Example
@@ -21,7 +21,7 @@ client = ElevenLabs()
 audio = client.text_to_speech.convert(
     text="Testing different voice settings.",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
-    model_id="eleven_multilingual_v2",
+    model_id="eleven_v3",
     voice_settings=VoiceSettings(
         stability=0.5,
         similarity_boost=0.75,
@@ -36,7 +36,7 @@ audio = client.text_to_speech.convert(
 ```javascript
 const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
   text: "Testing different voice settings.",
-  model_id: "eleven_multilingual_v2",
+  model_id: "eleven_v3",
   voice_settings: {
     stability: 0.5,
     similarity_boost: 0.75,
@@ -54,7 +54,7 @@ curl -X POST "https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb" 
   -H "Content-Type: application/json" \
   -d '{
     "text": "Testing different voice settings.",
-    "model_id": "eleven_multilingual_v2",
+    "model_id": "eleven_v3",
     "voice_settings": {
       "stability": 0.5,
       "similarity_boost": 0.75,
@@ -108,5 +108,6 @@ voice_settings=VoiceSettings(
 - **Start with defaults** and adjust incrementally
 - **Lower stability** if voice sounds monotonous
 - **Reduce similarity_boost** if you hear audio artifacts
-- **Style only works** with multilingual v2 models
+- **Style works** with v2+, v3, and multilingual models
 - **Test with representative text** from your actual use case
+- **Flash models** ignore some voice settings for speed

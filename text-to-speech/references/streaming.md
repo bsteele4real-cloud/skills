@@ -2,6 +2,14 @@
 
 Stream audio chunks as they're generated for lower latency.
 
+## Model Selection for Streaming
+
+| Model | Latency | Use Case |
+|-------|---------|----------|
+| `eleven_flash_v2_5` | ~75ms | Lowest latency, 32 languages |
+| `eleven_flash_v2` | ~75ms | Lowest latency, English only |
+| `eleven_turbo_v2_5` | Low | Balanced quality/speed |
+
 ## Python Streaming
 
 ```python
@@ -9,26 +17,23 @@ from elevenlabs import ElevenLabs
 
 client = ElevenLabs()
 
-# Generate streaming audio
 audio_stream = client.text_to_speech.convert(
-    text="This is a streaming example with lower latency.",
+    text="This is a streaming example with ultra-low latency.",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
-    model_id="eleven_turbo_v2_5"
+    model_id="eleven_flash_v2_5"
 )
 
-# Write chunks to file
 with open("output.mp3", "wb") as f:
     for chunk in audio_stream:
         f.write(chunk)
 ```
 
-### Play Audio in Real-Time
+### Real-Time Playback
 
 ```python
 import subprocess
 
 def play_stream(audio_stream):
-    # Using ffplay (requires ffmpeg installed)
     process = subprocess.Popen(
         ["ffplay", "-nodisp", "-autoexit", "-"],
         stdin=subprocess.PIPE
@@ -41,7 +46,7 @@ def play_stream(audio_stream):
 audio_stream = client.text_to_speech.convert(
     text="Playing this audio in real-time.",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
-    model_id="eleven_turbo_v2_5"
+    model_id="eleven_flash_v2_5"
 )
 play_stream(audio_stream)
 ```
@@ -56,7 +61,7 @@ const client = new ElevenLabsClient();
 
 const audioStream = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
   text: "Streaming audio in JavaScript.",
-  model_id: "eleven_turbo_v2_5",
+  model_id: "eleven_flash_v2_5",
 });
 
 // Write to file
@@ -65,14 +70,13 @@ audioStream.pipe(writeStream);
 
 // Or process chunks
 for await (const chunk of audioStream) {
-  // Process each chunk
   console.log(`Received ${chunk.length} bytes`);
 }
 ```
 
 ## WebSocket Streaming
 
-For the lowest latency, use WebSocket streaming:
+For text-streaming input (send text chunks as they arrive):
 
 ### Python WebSocket
 
@@ -80,9 +84,12 @@ For the lowest latency, use WebSocket streaming:
 import asyncio
 import websockets
 import json
+import base64
+import os
 
 async def stream_tts():
-    uri = "wss://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb/stream-input"
+    voice_id = "JBFqnCBsd6RMkjVDRZzb"
+    uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input"
 
     async with websockets.connect(
         uri,
@@ -92,14 +99,14 @@ async def stream_tts():
         await ws.send(json.dumps({
             "text": " ",
             "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
-            "model_id": "eleven_turbo_v2_5"
+            "model_id": "eleven_flash_v2_5"
         }))
 
-        # Send text chunks
+        # Send text chunks as they arrive
         await ws.send(json.dumps({"text": "Hello, "}))
         await ws.send(json.dumps({"text": "this is streaming. "}))
 
-        # End stream
+        # End stream (empty text signals completion)
         await ws.send(json.dumps({"text": ""}))
 
         # Receive audio chunks
@@ -114,13 +121,15 @@ asyncio.run(stream_tts())
 
 ## Best Practices
 
-1. **Use turbo models** for real-time applications:
-   - `eleven_turbo_v2_5` provides lowest latency
+1. **Use Flash models** for real-time:
+   - `eleven_flash_v2_5` for multilingual (~75ms)
+   - `eleven_flash_v2` for English-only (~75ms)
 
 2. **Buffer audio** before playback to prevent choppy output
 
 3. **Handle disconnections** gracefully in WebSocket streams
 
-4. **Choose appropriate output format**:
-   - `pcm_24000` for lowest latency processing
-   - `mp3_44100_128` for direct playback
+4. **Choose output format based on use case**:
+   - `pcm_24000` - lowest latency processing
+   - `mp3_44100_128` - direct playback
+   - `ulaw_8000` - telephony/Twilio integration

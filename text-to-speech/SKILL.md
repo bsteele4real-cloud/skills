@@ -1,15 +1,11 @@
 ---
 name: text-to-speech
-description: Convert text to lifelike speech using ElevenLabs' AI voice synthesis. Use this skill when generating audio from text, creating voiceovers, or building voice-enabled applications.
-license: MIT
-metadata:
-  author: elevenlabs
-  version: "1.0"
+description: Convert text to speech using ElevenLabs voice AI. Use when generating audio from text, creating voiceovers, building voice apps, or synthesizing speech in 74+ languages.
 ---
 
 # ElevenLabs Text-to-Speech
 
-Generate natural-sounding speech from text using ElevenLabs' voice AI.
+Generate natural speech from text with ElevenLabs - supports 74+ languages, multiple models for quality vs latency tradeoffs.
 
 ## Quick Start
 
@@ -61,17 +57,25 @@ curl -X POST "https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb" 
   --output output.mp3
 ```
 
+## Models
+
+| Model ID | Languages | Latency | Best For |
+|----------|-----------|---------|----------|
+| `eleven_v3` | 74 | Standard | Highest quality, emotional range |
+| `eleven_multilingual_v2` | 29 | Standard | High quality, most use cases |
+| `eleven_flash_v2_5` | 32 | ~75ms | Ultra-low latency, real-time |
+| `eleven_flash_v2` | English | ~75ms | English-only, fastest |
+| `eleven_turbo_v2_5` | 32 | Low | Balanced quality/speed |
+
 ## Voice IDs
 
-Use pre-made voices or create custom voices in the ElevenLabs dashboard.
+Use pre-made voices or create custom voices in the dashboard.
 
-**Popular pre-made voices:**
+**Popular voices:**
 - `JBFqnCBsd6RMkjVDRZzb` - George (male, narrative)
 - `EXAVITQu4vr4xnSDxMaL` - Sarah (female, soft)
 - `onwK4e9ZLuTAKqWW03F9` - Daniel (male, authoritative)
 - `XB0fDUnXU5powFXDhCwa` - Charlotte (female, conversational)
-
-List all available voices:
 
 ```python
 voices = client.voices.get_all()
@@ -79,17 +83,7 @@ for voice in voices.voices:
     print(f"{voice.voice_id}: {voice.name}")
 ```
 
-## Models
-
-| Model ID | Description | Best For |
-|----------|-------------|----------|
-| `eleven_multilingual_v2` | Latest multilingual model | Most use cases, 29 languages |
-| `eleven_turbo_v2_5` | Low-latency model | Real-time applications |
-| `eleven_monolingual_v1` | English-only model | English content |
-
 ## Voice Settings
-
-Control voice characteristics:
 
 ```python
 from elevenlabs import VoiceSettings
@@ -98,52 +92,87 @@ audio = client.text_to_speech.convert(
     text="Customize my voice settings.",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
     voice_settings=VoiceSettings(
-        stability=0.5,        # 0-1: Lower = more expressive
-        similarity_boost=0.75, # 0-1: Higher = closer to original voice
-        style=0.5,            # 0-1: Style exaggeration (v2 models)
+        stability=0.5,         # 0-1: Lower = more expressive
+        similarity_boost=0.75, # 0-1: Higher = closer to original
+        style=0.5,             # 0-1: Style exaggeration (v2+ models)
         use_speaker_boost=True
     )
 )
 ```
 
-## Output Formats
+## Language Enforcement
 
-Specify format with `output_format` parameter:
-
-| Format | Description |
-|--------|-------------|
-| `mp3_44100_128` | MP3 at 44.1kHz, 128kbps (default) |
-| `mp3_22050_32` | MP3 at 22.05kHz, 32kbps |
-| `pcm_16000` | PCM at 16kHz |
-| `pcm_22050` | PCM at 22.05kHz |
-| `pcm_24000` | PCM at 24kHz |
-| `ulaw_8000` | μ-law at 8kHz (telephony) |
+Force specific language for pronunciation:
 
 ```python
 audio = client.text_to_speech.convert(
-    text="High quality audio output.",
+    text="Bonjour, comment allez-vous?",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
-    output_format="mp3_44100_128"
+    model_id="eleven_multilingual_v2",
+    language_code="fr"  # ISO 639-1 code
 )
 ```
 
+## Text Normalization
+
+Control how numbers, dates, abbreviations are spoken:
+
+```python
+audio = client.text_to_speech.convert(
+    text="Call 1-800-555-0123 on 01/15/2026",
+    voice_id="JBFqnCBsd6RMkjVDRZzb",
+    apply_text_normalization="on"  # "auto", "on", or "off"
+)
+```
+
+## Request Stitching
+
+Maintain continuity across multiple generations:
+
+```python
+# First request
+audio1 = client.text_to_speech.convert(
+    text="This is the first part.",
+    voice_id="JBFqnCBsd6RMkjVDRZzb",
+    next_text="And this continues the story."
+)
+
+# Second request using previous context
+audio2 = client.text_to_speech.convert(
+    text="And this continues the story.",
+    voice_id="JBFqnCBsd6RMkjVDRZzb",
+    previous_text="This is the first part."
+)
+```
+
+## Output Formats
+
+| Format | Description |
+|--------|-------------|
+| `mp3_44100_128` | MP3 44.1kHz 128kbps (default) |
+| `mp3_44100_192` | MP3 44.1kHz 192kbps (Creator+) |
+| `pcm_16000` | PCM 16kHz |
+| `pcm_22050` | PCM 22.05kHz |
+| `pcm_24000` | PCM 24kHz |
+| `pcm_44100` | PCM 44.1kHz (Pro+) |
+| `ulaw_8000` | μ-law 8kHz (telephony/Twilio) |
+
 ## Streaming
 
-For real-time applications, stream audio as it's generated:
+For real-time applications:
 
 ```python
 audio_stream = client.text_to_speech.convert(
     text="This text will be streamed as audio.",
     voice_id="JBFqnCBsd6RMkjVDRZzb",
-    model_id="eleven_turbo_v2_5"  # Low latency model
+    model_id="eleven_flash_v2_5"  # Ultra-low latency
 )
 
 for chunk in audio_stream:
-    # Process each chunk as it arrives
     play_audio(chunk)
 ```
 
-See [references/streaming.md](references/streaming.md) for detailed streaming examples.
+See [references/streaming.md](references/streaming.md) for WebSocket streaming.
 
 ## Error Handling
 
