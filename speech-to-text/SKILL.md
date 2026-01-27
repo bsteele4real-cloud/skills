@@ -5,7 +5,7 @@ description: Transcribe audio to text using ElevenLabs Scribe. Use when converti
 
 # ElevenLabs Speech-to-Text
 
-Transcribe audio to text with Scribe v2 - supports 90+ languages, speaker diarization, entity detection, and word-level timestamps.
+Transcribe audio to text with Scribe v2 - supports 90+ languages, speaker diarization, entity detection, and word-level timestamps. This is for the batch API, not the real-time API.
 
 ## Quick Start
 
