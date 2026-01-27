@@ -193,6 +193,48 @@ Common errors:
 - **422**: Invalid parameters (check voice_id, model_id)
 - **429**: Rate limit exceeded
 
+## Tracking Costs
+
+Monitor character usage via response headers:
+
+### Python
+
+```python
+response = client.text_to_speech.convert.with_raw_response(
+    text="Hello, welcome to ElevenLabs!",
+    voice_id="JBFqnCBsd6RMkjVDRZzb",
+    model_id="eleven_multilingual_v2"
+)
+
+audio = response.parse()
+character_count = response.headers.get("x-character-count")
+request_id = response.headers.get("request-id")
+
+print(f"Characters used: {character_count}")
+```
+
+### JavaScript
+
+```javascript
+const response = await client.textToSpeech.convert.withRawResponse("JBFqnCBsd6RMkjVDRZzb", {
+  text: "Hello, welcome to ElevenLabs!",
+  modelId: "eleven_multilingual_v2",
+});
+
+const audio = response.body;
+const characterCount = response.headers.get("x-character-count");
+const requestId = response.headers.get("request-id");
+
+console.log(`Characters used: ${characterCount}`);
+```
+
+### Response Headers
+
+| Header | Description |
+|--------|-------------|
+| `x-character-count` | Number of characters processed |
+| `request-id` | Unique identifier for the request |
+
 ## References
 
 - [Installation Guide](references/installation.md)

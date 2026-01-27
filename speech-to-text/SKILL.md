@@ -5,7 +5,7 @@ description: Transcribe audio to text using ElevenLabs Scribe. Use when converti
 
 # ElevenLabs Speech-to-Text
 
-Transcribe audio to text with Scribe v2 - supports 90+ languages, speaker diarization, entity detection, and word-level timestamps. This is for the batch API, not the real-time API.
+Transcribe audio to text with Scribe v2 - supports 90+ languages, speaker diarization, and word-level timestamps. Use the batch API for files or the real-time API for live streaming.
 
 ## Quick Start
 
@@ -168,7 +168,134 @@ Common errors:
 - **422**: Invalid parameters
 - **429**: Rate limit exceeded
 
+## Tracking Costs
+
+Monitor usage via response headers:
+
+### Python
+
+```python
+response = client.speech_to_text.convert.with_raw_response(
+    file=audio_file,
+    model_id="scribe_v2"
+)
+
+result = response.parse()
+request_id = response.headers.get("request-id")
+
+print(f"Request ID: {request_id}")
+```
+
+### JavaScript
+
+```javascript
+const response = await client.speechToText.convert.withRawResponse({
+  file: createReadStream("audio.mp3"),
+  modelId: "scribe_v2",
+});
+
+const result = response.body;
+const requestId = response.headers.get("request-id");
+
+console.log(`Request ID: ${requestId}`);
+```
+
+### Response Headers
+
+| Header | Description |
+|--------|-------------|
+| `request-id` | Unique identifier for the request |
+
+## Real-Time Streaming
+
+For live transcription with ultra-low latency (~150ms), use the real-time API.
+
+### Python (Server-Side)
+
+```python
+import asyncio
+from elevenlabs import ElevenLabs
+
+client = ElevenLabs()
+
+async def transcribe_realtime():
+    async with client.speech_to_text.realtime.connect(
+        model_id="scribe_v2_realtime",
+        include_timestamps=True,
+    ) as connection:
+        await connection.stream_url("https://example.com/audio.mp3")
+
+        async for event in connection:
+            if event.type == "partial_transcript":
+                print(f"Partial: {event.text}")
+            elif event.type == "committed_transcript":
+                print(f"Final: {event.text}")
+
+asyncio.run(transcribe_realtime())
+```
+
+### JavaScript (Client-Side with React)
+
+```typescript
+import { useScribe } from "@elevenlabs/react";
+
+function TranscriptionComponent() {
+  const [transcript, setTranscript] = useState("");
+
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    onPartialTranscript: (data) => console.log("Partial:", data.text),
+    onCommittedTranscript: (data) => setTranscript((prev) => prev + data.text),
+  });
+
+  const start = async () => {
+    // Get token from your backend (never expose API key to client)
+    const { token } = await fetch("/scribe-token").then((r) => r.json());
+
+    await scribe.connect({
+      token,
+      microphone: { echoCancellation: true, noiseSuppression: true },
+    });
+  };
+
+  return <button onClick={start}>Start Recording</button>;
+}
+```
+
+### Commit Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| **Manual** | You control when to commit (default) |
+| **VAD** | Auto-commit on silence detection |
+
+```javascript
+// VAD configuration
+const connection = await client.speechToText.realtime.connect({
+  modelId: "scribe_v2_realtime",
+  vad: {
+    silenceThresholdSecs: 1.5,
+    threshold: 0.4,
+  },
+});
+```
+
+### Event Types
+
+| Event | Description |
+|-------|-------------|
+| `partial_transcript` | Live interim results |
+| `committed_transcript` | Final results after commit |
+| `committed_transcript_with_timestamps` | Final with word timing |
+| `error` | Error occurred |
+
+See real-time references for complete documentation.
+
 ## References
 
 - [Installation Guide](references/installation.md)
 - [Transcription Options](references/transcription-options.md)
+- [Real-Time Client-Side Streaming](references/realtime-client-side.md)
+- [Real-Time Server-Side Streaming](references/realtime-server-side.md)
+- [Commit Strategies](references/realtime-commit-strategies.md)
+- [Real-Time Event Reference](references/realtime-events.md)

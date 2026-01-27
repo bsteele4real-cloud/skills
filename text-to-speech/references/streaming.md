@@ -76,48 +76,220 @@ for await (const chunk of audioStream) {
 
 ## WebSocket Streaming
 
-For text-streaming input (send text chunks as they arrive):
+For text-streaming input where you send text chunks as they arrive (e.g., from an LLM).
+
+### Connection
+
+```
+wss://api.elevenlabs.io/v1/text-to-speech/{voiceId}/stream-input?model_id={modelId}
+```
+
+**Note:** WebSockets are unavailable for the `eleven_v3` model. Use `eleven_flash_v2_5` for lowest latency.
+
+### Message Flow
+
+1. **Initialize** - Send voice settings and configuration
+2. **Send text** - Stream text chunks as they arrive
+3. **Close** - Send empty string to signal completion
+4. **Receive** - Process audio chunks as they're generated
 
 ### Python WebSocket
 
 ```python
 import asyncio
-import websockets
 import json
 import base64
 import os
+import websockets
+from dotenv import load_dotenv
 
-async def stream_tts():
-    voice_id = "JBFqnCBsd6RMkjVDRZzb"
-    uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input"
+load_dotenv()
 
-    async with websockets.connect(
-        uri,
-        extra_headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"]}
-    ) as ws:
-        # Initialize stream
-        await ws.send(json.dumps({
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
+async def text_to_speech_ws_streaming(voice_id: str, model_id: str):
+    uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input?model_id={model_id}"
+
+    async with websockets.connect(uri) as websocket:
+        # Initialize connection
+        await websocket.send(json.dumps({
             "text": " ",
-            "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
-            "model_id": "eleven_flash_v2_5"
+            "voice_settings": {
+                "stability": 0.5,
+                "similarity_boost": 0.8
+            },
+            "generation_config": {
+                "chunk_length_schedule": [120, 160, 250, 290]
+            },
+            "xi_api_key": ELEVENLABS_API_KEY
         }))
 
-        # Send text chunks as they arrive
-        await ws.send(json.dumps({"text": "Hello, "}))
-        await ws.send(json.dumps({"text": "this is streaming. "}))
+        # Send text chunks
+        await websocket.send(json.dumps({"text": "Hello, "}))
+        await websocket.send(json.dumps({"text": "this is streaming text "}))
+        await websocket.send(json.dumps({"text": "from a WebSocket connection."}))
 
-        # End stream (empty text signals completion)
-        await ws.send(json.dumps({"text": ""}))
+        # Close stream (empty text signals completion)
+        await websocket.send(json.dumps({"text": ""}))
 
-        # Receive audio chunks
-        async for message in ws:
+        # Receive and process audio chunks
+        audio_chunks = []
+        while True:
+            message = await websocket.recv()
             data = json.loads(message)
             if data.get("audio"):
-                audio_chunk = base64.b64decode(data["audio"])
-                # Process audio chunk
+                audio_chunks.append(base64.b64decode(data["audio"]))
+            elif data.get("isFinal"):
+                break
 
-asyncio.run(stream_tts())
+        return b"".join(audio_chunks)
+
+async def main():
+    audio = await text_to_speech_ws_streaming(
+        voice_id="JBFqnCBsd6RMkjVDRZzb",
+        model_id="eleven_flash_v2_5"
+    )
+    with open("output.mp3", "wb") as f:
+        f.write(audio)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
+
+### JavaScript WebSocket
+
+```javascript
+import "dotenv/config";
+import WebSocket from "ws";
+import * as fs from "node:fs";
+
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+async function textToSpeechWsStreaming(voiceId, modelId) {
+  const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${modelId}`;
+
+  return new Promise((resolve, reject) => {
+    const websocket = new WebSocket(uri, {
+      headers: { "xi-api-key": ELEVENLABS_API_KEY },
+    });
+
+    const audioChunks = [];
+
+    websocket.on("open", () => {
+      // Initialize connection
+      websocket.send(
+        JSON.stringify({
+          text: " ",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8,
+          },
+          generation_config: {
+            chunk_length_schedule: [120, 160, 250, 290],
+          },
+        })
+      );
+
+      // Send text chunks
+      websocket.send(JSON.stringify({ text: "Hello, " }));
+      websocket.send(JSON.stringify({ text: "this is streaming text " }));
+      websocket.send(JSON.stringify({ text: "from a WebSocket connection." }));
+
+      // Close stream
+      websocket.send(JSON.stringify({ text: "" }));
+    });
+
+    websocket.on("message", (event) => {
+      const data = JSON.parse(event.toString());
+      if (data.audio) {
+        audioChunks.push(Buffer.from(data.audio, "base64"));
+      } else if (data.isFinal) {
+        websocket.close();
+        resolve(Buffer.concat(audioChunks));
+      }
+    });
+
+    websocket.on("error", reject);
+  });
+}
+
+const audio = await textToSpeechWsStreaming(
+  "JBFqnCBsd6RMkjVDRZzb",
+  "eleven_flash_v2_5"
+);
+fs.writeFileSync("output.mp3", audio);
+```
+
+### Input Messages
+
+**Initialization (first message):**
+
+```json
+{
+  "text": " ",
+  "voice_settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "use_speaker_boost": false
+  },
+  "generation_config": {
+    "chunk_length_schedule": [120, 160, 250, 290]
+  },
+  "xi_api_key": "your_api_key"
+}
+```
+
+**Text chunks:**
+
+```json
+{ "text": "Your text content here" }
+```
+
+**Force flush (generate audio immediately):**
+
+```json
+{ "text": "End of sentence.", "flush": true }
+```
+
+**Close connection:**
+
+```json
+{ "text": "" }
+```
+
+### Output Messages
+
+**Audio chunk:**
+
+```json
+{
+  "audio": "base64_encoded_audio_data"
+}
+```
+
+**Stream complete:**
+
+```json
+{
+  "isFinal": true
+}
+```
+
+### Key Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `chunk_length_schedule` | Array of character thresholds that trigger audio generation (e.g., `[120, 160, 250, 290]`) |
+| `flush` | Set `true` to force immediate audio generation without waiting for threshold |
+| `voice_settings` | Adjustable per-message: `stability`, `similarity_boost`, `use_speaker_boost` |
+
+### Important Notes
+
+- **Inactivity timeout**: Connection closes after 20 seconds without activity. Send a space `" "` to keep alive.
+- **TTFB**: Audio generation starts when text reaches thresholds in `chunk_length_schedule`.
+- **Model limitation**: WebSockets are unavailable for `eleven_v3`.
+- **Best practice**: Use `flush: true` at conversation turn endings to ensure timely generation.
+- **Alignment data**: Word-level timestamps available via `alignment` field for synchronization.
 
 ## Best Practices
 
