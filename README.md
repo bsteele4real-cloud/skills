@@ -10,26 +10,6 @@ Agent skills for [ElevenLabs](https://elevenlabs.io) developer products. These s
 npx skills add elevenlabs/skills
 ```
 
-### Using with specific agents
-
-**Claude Code:**
-```bash
-# Clone and reference the skills directory
-git clone https://github.com/elevenlabs/skills.git
-claude --plugin-dir ./skills
-```
-
-**Cursor:**
-```bash
-# Clone and copy skills to Cursor's skills directory
-git clone https://github.com/elevenlabs/skills.git
-cp -r skills/* ~/.cursor/skills/
-```
-
-**Other agents:**
-
-These skills follow the [Agent Skills specification](https://agentskills.io/specification). Clone this repository and copy the skill directories to your agent's skills folder.
-
 ## Available Skills
 
 | Skill | Description |
