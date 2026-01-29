@@ -90,12 +90,10 @@ audio = client.music.compose(
 ## Error Handling
 
 ```python
-from elevenlabs import ElevenLabsError
-
 try:
     audio = client.music.compose(prompt="...", music_length_ms=30000)
-except ElevenLabsError as e:
-    print(f"API error: {e.message}")
+except Exception as e:
+    print(f"API error: {e}")
 ```
 
 Common errors: 401 (invalid key), 422 (invalid params), 429 (rate limit).

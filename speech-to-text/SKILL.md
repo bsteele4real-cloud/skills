@@ -138,12 +138,10 @@ print(f"Detected: {result.language_code} ({result.language_probability:.0%})")
 ## Error Handling
 
 ```python
-from elevenlabs import ElevenLabsError
-
 try:
     result = client.speech_to_text.convert(file=audio_file, model_id="scribe_v2")
-except ElevenLabsError as e:
-    print(f"Transcription failed: {e.message}")
+except Exception as e:
+    print(f"Transcription failed: {e}")
 ```
 
 Common errors:

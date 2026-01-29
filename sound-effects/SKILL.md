@@ -103,12 +103,10 @@ Full list: `mp3_22050_32`, `mp3_24000_48`, `mp3_44100_32`, `mp3_44100_64`, `mp3_
 ## Error Handling
 
 ```python
-from elevenlabs import ElevenLabsError
-
 try:
     audio = client.text_to_sound_effects.convert(text="Explosion")
-except ElevenLabsError as e:
-    print(f"API error: {e.message}")
+except Exception as e:
+    print(f"API error: {e}")
 ```
 
 Common errors:

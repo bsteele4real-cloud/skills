@@ -184,15 +184,13 @@ See [references/streaming.md](references/streaming.md) for WebSocket streaming.
 ## Error Handling
 
 ```python
-from elevenlabs import ElevenLabsError
-
 try:
     audio = client.text_to_speech.convert(
         text="Generate speech",
         voice_id="invalid-voice-id"
     )
-except ElevenLabsError as e:
-    print(f"API error: {e.message}")
+except Exception as e:
+    print(f"API error: {e}")
 ```
 
 Common errors:

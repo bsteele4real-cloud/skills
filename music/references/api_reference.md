@@ -143,17 +143,13 @@ with open(result.filename, "wb") as f:
 Occurs when the prompt references copyrighted material (specific artists, bands, or copyrighted lyrics). The error response includes a `prompt_suggestion` with alternative phrasing.
 
 ```python
-from elevenlabs import ElevenLabsError
-
 try:
     audio = client.music.compose(
         prompt="A song like Beatles",
         music_length_ms=30000
     )
-except ElevenLabsError as e:
-    if "bad_prompt" in str(e):
-        # Use the suggested prompt from the error
-        print(f"Try: {e.body.get('prompt_suggestion')}")
+except Exception as e:
+    print(f"Request failed: {e}")
 ```
 
 ### bad_composition_plan

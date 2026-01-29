@@ -213,11 +213,10 @@ See [Agent Configuration](references/agent-configuration.md) for all configurati
 ## Error Handling
 
 ```python
-from elevenlabs import ElevenLabsError
 try:
     agent = client.conversational_ai.agents.create(...)
-except ElevenLabsError as e:
-    print(f"API error: {e.message}")
+except Exception as e:
+    print(f"API error: {e}")
 ```
 
 Common errors: **401** (invalid key), **404** (not found), **422** (invalid config), **429** (rate limit)
