@@ -157,6 +157,41 @@ Customize with attributes: `avatar-image-url`, `action-text`, `start-call-text`,
 
 See [Widget Embedding Reference](references/widget-embedding.md) for all options.
 
+## Outbound Calls
+
+Make outbound phone calls using your agent via Twilio integration:
+
+### Python
+
+```python
+response = client.conversational_ai.twilio.outbound_call(
+    agent_id="your-agent-id",
+    agent_phone_number_id="your-phone-number-id",
+    to_number="+1234567890"
+)
+print(f"Call initiated: {response.conversation_id}")
+```
+
+### JavaScript
+
+```javascript
+const response = await client.conversationalAi.twilio.outboundCall({
+  agentId: "your-agent-id",
+  agentPhoneNumberId: "your-phone-number-id",
+  toNumber: "+1234567890",
+});
+```
+
+### cURL
+
+```bash
+curl -X POST "https://api.elevenlabs.io/v1/convai/twilio/outbound-call" \
+  -H "xi-api-key: $ELEVENLABS_API_KEY" -H "Content-Type: application/json" \
+  -d '{"agent_id": "your-agent-id", "agent_phone_number_id": "your-phone-number-id", "to_number": "+1234567890"}'
+```
+
+See [Outbound Calls Reference](references/outbound-calls.md) for configuration overrides and dynamic variables.
+
 ## Managing Agents
 
 ### Using CLI (Recommended)
@@ -227,3 +262,4 @@ Common errors: **401** (invalid key), **404** (not found), **422** (invalid conf
 - [Agent Configuration](references/agent-configuration.md) - All config options and CRUD examples
 - [Client Tools](references/client-tools.md) - Webhook, client, and system tools
 - [Widget Embedding](references/widget-embedding.md) - Website integration
+- [Outbound Calls](references/outbound-calls.md) - Twilio phone call integration
