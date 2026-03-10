@@ -20,6 +20,7 @@ See the [main agents skill](../SKILL.md#outbound-calls) for basic Python, JavaSc
 | `agent_phone_number_id` | string | Yes | The ID of the Twilio phone number linked to your agent |
 | `to_number` | string | Yes | The destination phone number (E.164 format) |
 | `conversation_initiation_client_data` | object | No | Override conversation settings for this call |
+| `telephony_call_config` | object | No | Telephony call settings like ringing timeout |
 
 ## Response
 
@@ -111,6 +112,12 @@ const response = await client.conversationalAi.twilio.outboundCall({
 | `stability` | number | Voice stability (0.0-1.0) |
 | `similarity_boost` | number | Voice similarity boost (0.0-1.0) |
 | `speed` | number | Speech speed multiplier |
+
+### Telephony Call Configuration
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `ringing_timeout_secs` | integer | How long to ring the recipient before giving up (default: `60`) |
 
 ### Dynamic Variables
 
