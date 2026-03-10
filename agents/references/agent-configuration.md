@@ -263,9 +263,14 @@ platform_settings={
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `summary_language` | string | Language for post-conversation summaries |
 | `tags` | array | Classification labels for filtering (e.g., `["production"]`, `["test"]`) |
 | `coaching_settings` | object | Configuration for agent coaching and evaluation |
 | `workflow` | object | Conversation flow definition and tool interaction sequences |
+
+### workflow
+
+Workflows can now include `say` nodes (`WorkflowSayNodeModel`) for injecting static or LLM-generated messages into a flow. The 2026-03-02 changelog adds `conversation_config`, `additional_prompt`, and discriminated `message` payloads (`literal` and `prompt`) to this node type, but the exact schema should be verified in the API reference before authoring full field tables or code examples.
 
 ## Knowledge Base / RAG
 
@@ -415,7 +420,7 @@ curl -X PATCH "https://api.elevenlabs.io/v1/convai/agents/your-agent-id" \
 
 | Section | Fields |
 |---------|--------|
-| Root | `name`, `tags` |
+| Root | `name`, `tags`, `summary_language` |
 | `conversation_config.agent` | `first_message`, `language`, `disable_first_message_interruptions`, `dynamic_variables` |
 | `conversation_config.agent.prompt` | `prompt`, `llm`, `temperature`, `max_tokens`, `reasoning_effort`, `tools`, `built_in_tools`, `knowledge_base`, `custom_llm`, `timezone` |
 | `conversation_config.tts` | `voice_id`, `model_id`, `stability`, `similarity_boost`, `speed`, `optimize_streaming_latency`, `expressive_mode` |

@@ -49,7 +49,13 @@ This creates a floating button that users can click to start a voice conversatio
 | `variant` | Widget style: `compact` or `expanded` | `compact` |
 | `server-location` | Server region (`us`, `eu-residency`, `in-residency`, `global`) | `us` |
 | `dismissible` | Allow the user to minimize the widget | `false` |
+| `show-agent-status` | Show working, done, and error states while the agent uses tools | `false` |
+| `show-conversation-id` | Show the conversation ID after the call ends | `true` |
+| `strip-audio-tags` | Hide audio markup in conversation transcripts | `true` |
+| `syntax-highlight-theme` | Code block theme: `light`, `dark`, or automatic | `auto` |
 | `disable-banner` | Hide "Powered by ElevenLabs" | `false` |
+
+When `show-agent-status` is enabled, the widget also emits `agent_tool_request` and `agent_tool_response` client events.
 
 ## Examples
 

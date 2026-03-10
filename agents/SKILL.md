@@ -175,7 +175,7 @@ See [Client Tools Reference](references/client-tools.md) for complete documentat
 <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 ```
 
-Customize with attributes: `avatar-image-url`, `action-text`, `start-call-text`, `end-call-text`.
+Customize with attributes: `avatar-image-url`, `action-text`, `start-call-text`, `end-call-text`, `dismissible`, `show-agent-status`, `show-conversation-id`, `strip-audio-tags`, and `syntax-highlight-theme`.
 
 See [Widget Embedding Reference](references/widget-embedding.md) for all options.
 
@@ -189,7 +189,8 @@ Make outbound phone calls using your agent via Twilio integration:
 response = client.conversational_ai.twilio.outbound_call(
     agent_id="your-agent-id",
     agent_phone_number_id="your-phone-number-id",
-    to_number="+1234567890"
+    to_number="+1234567890",
+    call_recording_enabled=True
 )
 print(f"Call initiated: {response.conversation_id}")
 ```
@@ -201,6 +202,7 @@ const response = await client.conversationalAi.twilio.outboundCall({
   agentId: "your-agent-id",
   agentPhoneNumberId: "your-phone-number-id",
   toNumber: "+1234567890",
+  callRecordingEnabled: true,
 });
 ```
 
@@ -209,7 +211,7 @@ const response = await client.conversationalAi.twilio.outboundCall({
 ```bash
 curl -X POST "https://api.elevenlabs.io/v1/convai/twilio/outbound-call" \
   -H "xi-api-key: $ELEVENLABS_API_KEY" -H "Content-Type: application/json" \
-  -d '{"agent_id": "your-agent-id", "agent_phone_number_id": "your-phone-number-id", "to_number": "+1234567890"}'
+  -d '{"agent_id": "your-agent-id", "agent_phone_number_id": "your-phone-number-id", "to_number": "+1234567890", "call_recording_enabled": true}'
 ```
 
 See [Outbound Calls Reference](references/outbound-calls.md) for configuration overrides and dynamic variables.

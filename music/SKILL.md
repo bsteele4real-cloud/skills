@@ -60,8 +60,15 @@ curl -X POST "https://api.elevenlabs.io/v1/music" \
 | `music.compose` | Generate audio from a prompt or composition plan |
 | `music.composition_plan.create` | Generate a structured plan for fine-grained control |
 | `music.compose_detailed` | Generate audio + composition plan + metadata |
+| `music.upload` | Upload an existing track and receive a `song_id` for later inpainting workflows |
 
 See [API Reference](references/api_reference.md) for full parameter details.
+
+## Uploading Existing Audio
+
+Use `music.upload` when you already have an audio file and need a `song_id` for later inpainting workflows. Set `extract_composition_plan` if you also want the API to return a composition plan for the uploaded track.
+
+See [API Reference](references/api_reference.md#upload) for the multipart request and response schema.
 
 ## Composition Plans
 

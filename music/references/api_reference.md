@@ -5,6 +5,7 @@
 - [compose](#compose)
 - [composition_plan.create](#composition_plancreate)
 - [compose_detailed](#compose_detailed)
+- [upload](#upload)
 - [Error Handling](#error-handling)
 
 ## compose
@@ -23,6 +24,8 @@ Generate music from a text prompt. Returns an audio stream.
 | `respect_sections_durations` | boolean | No | Enforce exact `duration_ms` in each composition plan section |
 
 *Provide either `prompt` or `composition_plan`, not both.
+
+Generated songs also surface a `song_id` in response headers. Keep it if you plan to reuse the track later in upload or inpainting workflows.
 
 ### Python
 
@@ -135,6 +138,24 @@ print(result.json)
 with open(result.filename, "wb") as f:
     f.write(result.audio)
 ```
+
+## upload
+
+Upload an audio file and receive a `song_id` for later inpainting workflows.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `file` | file | Yes | The audio file to upload |
+| `extract_composition_plan` | boolean | No | Whether to generate and return the composition plan for the uploaded song. Defaults to `false`; enabling it increases latency |
+
+### Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `song_id` | string | Unique identifier for the uploaded song |
+| `composition_plan` | object or null | Extracted composition plan; only present when `extract_composition_plan` is `true` |
 
 ## Error Handling
 
