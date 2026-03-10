@@ -14,6 +14,7 @@
 | `keyterms` | array | No | Terms to bias transcription (up to 100 terms; each ≤50 chars, ≤5 words) |
 | `tag_audio_events` | boolean | No | Detect non-speech sounds like laughter, applause (default: `true`) |
 | `entity_detection` | string or array | No | Detect entities (e.g., `pii`, `phi`, `pci`, `offensive_language`) |
+| `no_verbatim` | boolean | No | If `true`, removes filler words, false starts, and non-speech sounds (supported with `scribe_v2`) |
 | `use_multi_channel` | boolean | No | Split multichannel audio into separate transcripts (default: `false`; max 5 channels, max 1 hour) |
 | `cloud_storage_url` | string | No | HTTPS URL to transcribe instead of uploading a file (max 2GB) |
 | `webhook` | boolean | No | Process async and send result to webhook (default: `false`) |

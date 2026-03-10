@@ -40,6 +40,7 @@ client = ElevenLabs()
 
 agent = client.conversational_ai.agents.create(
     name="My Assistant",
+    enable_versioning=True,
     conversation_config={
         "agent": {
             "first_message": "Hello! How can I help?",
@@ -63,6 +64,7 @@ const client = new ElevenLabsClient();
 
 const agent = await client.conversationalAi.agents.create({
   name: "My Assistant",
+  enableVersioning: true,
   conversationConfig: {
     agent: {
       firstMessage: "Hello! How can I help?",
@@ -81,7 +83,7 @@ const agent = await client.conversationalAi.agents.create({
 ### cURL
 
 ```bash
-curl -X POST "https://api.elevenlabs.io/v1/convai/agents/create" \
+curl -X POST "https://api.elevenlabs.io/v1/convai/agents/create?enable_versioning=true" \
   -H "xi-api-key: $ELEVENLABS_API_KEY" -H "Content-Type: application/json" \
   -d '{"name": "My Assistant", "conversation_config": {"agent": {"first_message": "Hello!", "language": "en", "prompt": {"prompt": "You are helpful.", "llm": "gemini-2.0-flash"}}, "tts": {"voice_id": "JBFqnCBsd6RMkjVDRZzb"}}}'
 ```
@@ -119,8 +121,8 @@ await conversation.startSession({ signedUrl: token });
 | Provider | Models |
 |----------|--------|
 | OpenAI | `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo` |
-| Anthropic | `claude-sonnet-4-5`, `claude-sonnet-4`, `claude-haiku-4-5`, `claude-3-7-sonnet`, `claude-3-5-sonnet`, `claude-3-haiku` |
-| Google | `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`, `gemini-2.0-flash-lite` |
+| Anthropic | `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-sonnet-4`, `claude-haiku-4-5`, `claude-3-7-sonnet`, `claude-3-5-sonnet`, `claude-3-haiku` |
+| Google | `gemini-3.1-flash-lite-preview`, `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`, `gemini-2.0-flash-lite` |
 | ElevenLabs | `glm-45-air-fp8`, `qwen3-30b-a3b`, `gpt-oss-120b` |
 | Custom | `custom-llm` (bring your own endpoint) |
 
