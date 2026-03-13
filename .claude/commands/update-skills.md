@@ -1,13 +1,11 @@
 You are tasked with updating ElevenLabs agent skills based on a weekly "Skills Update Brief" issue from the elevenlabs-dx changelog process.
 
-Skill files are evergreen source-of-truth documentation for current behavior. Use the brief and changelog to discover what changed, but write final `SKILL.md` and `references/*.md` content as timeless present-tense documentation.
-
 ## Workflow
 
 1. Find the latest open `skills-update` issue
 2. Parse the brief to identify which skills are affected and what needs changing
 3. For each affected skill, read the current files and make targeted updates
-4. Verify each delta against the changelog and each documented detail against the API reference
+4. Verify every change against the actual changelog and API reference
 5. Self-check all edits before committing
 6. Create a branch, commit changes, and open a PR referencing the issue
 
@@ -64,21 +62,20 @@ The skill directories are:
 
 ## Step 3.5: Verify changes against source documentation
 
-Before making any edits, fetch and read the actual source material. The brief and changelog tell you *what changed*; API/reference docs tell you *what to document as the current state*. You must verify every detail before writing documentation.
+Before making any edits, fetch and read the actual source material. The brief is a summary that tells you *what* changed, not the exact shape of the API. You must verify every detail before writing documentation.
 
-1. **Fetch the changelog page** linked in the brief's `Source:` field (e.g., `https://elevenlabs.io/docs/changelog/YYYY-MM-DD`). Use it to identify deltas and affected surfaces, not as final wording for skill files.
+1. **Fetch the changelog page** linked in the brief's `Source:` field (e.g., `https://elevenlabs.io/docs/changelog/YYYY-MM-DD`). This contains the authoritative description of what changed.
 2. **Fetch the relevant API reference pages** for each change. The ElevenLabs API reference lives at `https://elevenlabs.io/docs/api-reference/`. For common areas:
    - Agents: `https://elevenlabs.io/docs/api-reference/agents/create`, `https://elevenlabs.io/docs/api-reference/agents/update`
    - TTS: `https://elevenlabs.io/docs/api-reference/text-to-speech/convert`
    - STT: `https://elevenlabs.io/docs/api-reference/speech-to-text/convert`
-3. **For each bullet in the brief**, find the corresponding section in the API reference. Note the exact field names, types, nesting, and allowed values for the final docs.
-4. If a feature appears in the brief/changelog but the API reference does not provide enough schema detail, do not create field tables or code examples for it. Put it under "Needs Manual Authoring" in the PR.
+3. **For each bullet in the brief**, find the corresponding section in the API reference. Note the exact field names, types, nesting, and allowed values.
 
 Do NOT proceed to editing until you have read the actual API reference for every field, parameter, or schema you intend to document. If a referenced page returns an error or doesn't contain the expected information, flag it — do not guess.
 
 ## Step 4: Make targeted updates
 
-For each bullet in the brief, identify the **affected area** (bolded in the brief) and apply the change to the correct file and section using current-state, present-tense wording.
+For each bullet in the brief, identify the **affected area** (bolded in the brief) and apply the change to the correct file and section.
 
 ### Update patterns by affected area
 
@@ -100,25 +97,19 @@ For each bullet in the brief, identify the **affected area** (bolded in the brie
 
 ### Hard rules — never break these
 
-- **Never invent field names, types, or schemas.** Every field you document must be verified against API reference documentation, not inferred from the brief. If the brief says "new `sanitize` field" but you cannot find its exact type and parent object in the API reference, do not document it.
+- **Never invent field names, types, or schemas.** Every field you document must come from the API reference or the changelog, not from inference based on the brief's description. If the brief says "new `sanitize` field" but you cannot find its exact type and parent object in the API reference, do not document it.
 - **Never write code examples for new features without verifying the exact API shape.** If you cannot fetch or find the API reference for a new feature, add a stub like `<!-- TODO: Add code example — verify schema against API reference -->` instead of guessing.
-- **Treat the brief and changelog as discovery inputs, not skill-file prose.** They tell you *which* things changed; API/reference docs tell you the current behavior to document. Never use brief/changelog phrasing directly in skill content.
-- **Skill files must be evergreen.** Never mention changelog, brief, issue, PR, release date, or temporal phrases like "added in", "introduced in", "as of YYYY-MM-DD", or "now supports" inside `SKILL.md` or `references/*.md`.
-- **Rewrite release-note phrasing into timeless docs.** Example:
-  - Bad: `For RAG indexing, the 2026-02-23 changelog added support for the qwen3_embedding_4b embedding model.`
-  - Good: `RAG indexing supports the qwen3_embedding_4b embedding model.`
-  - Bad: `As of 2026-02-23, agents now support X.`
-  - Good: `Agents support X.`
-- **Never fabricate example values.** If you're adding a code example, use values from source docs and present them as current behavior. Do not invent model IDs, field names, or configuration values that "seem right."
+- **Treat the brief as a table of contents, not a specification.** The brief tells you *which* things changed. The changelog and API reference tell you *how* they changed. Never use the brief's description alone to construct parameter tables or code examples.
+- **Never fabricate example values.** If you're adding a code example, use values from the API reference or changelog. Do not invent model IDs, field names, or configuration values that "seem right."
 
 ### Risk tiers for changes
 
-**Low risk** (brief + changelog verification is usually sufficient):
+**Low risk** (proceed with information from the brief):
 - Adding a new enum value to an existing list (e.g., new model ID to a model table)
 - Updating a version number
 - Adding a new bullet to an existing list of options
 
-**Medium risk** (verify against changelog and API reference before editing):
+**Medium risk** (verify against changelog before editing):
 - Adding a new field to an existing parameter table
 - Adding a new option to an existing code example
 
@@ -144,11 +135,8 @@ Review every change you made and verify:
 
 1. Every field name in a parameter table appears in the API reference you fetched in Step 3.5.
 2. Every code example uses the actual parameter names and nesting from the API reference.
-3. You did not add any field, type, or description that you inferred rather than verifying in source documentation (prefer API reference for schema details).
+3. You did not add any field, type, or description that you inferred rather than read from the changelog or API reference.
 4. No code example contains fabricated values (model IDs, config names, etc.) that you didn't find in the source documentation.
-5. No edited `SKILL.md` or `references/*.md` line references a changelog, brief, issue, PR, or date as part of feature documentation.
-6. No release-note phrasing remains in skill files (e.g., "added in", "introduced in", "as of", "now supports", "the changelog added").
-7. Any historical/provenance notes are kept in the PR body only, not in skill files.
 
 If any change fails this check, revert it. Move it to the "Needs Manual Authoring" section of the PR description instead.
 
@@ -210,9 +198,8 @@ If all changes were verified and applied, write "All items from the brief were a
 - Do not modify skills that are not mentioned in the brief.
 - Do not update the `openclaw/` directory — that is community-maintained.
 - Do not change the YAML frontmatter in SKILL.md files unless the brief specifically calls for it (e.g., description change).
-- If the brief mentions a change you cannot verify against the API reference (or another canonical documentation page), do NOT add it to the skill files. Instead, list it in the PR description under "Needs Manual Authoring" with what the brief says and why you couldn't verify it. A wrong code example is worse than a missing one.
+- If the brief mentions a change you cannot verify against the API reference or changelog, do NOT add it to the skill files. Instead, list it in the PR description under "Needs Manual Authoring" with what the brief says and why you couldn't verify it. A wrong code example is worse than a missing one.
 - If the brief's Summary says changes are "breaking", add a warning in the PR description highlighting which examples may need migration guidance.
-- Keep changelog dates, issue references, and release-history wording in the PR/issue context only — never in `SKILL.md` or `references/*.md`.
 
 ## Note on brief quality
 
