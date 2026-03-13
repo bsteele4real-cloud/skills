@@ -134,7 +134,7 @@ See [Agent Configuration](references/agent-configuration.md) for all options.
 
 ## Tools
 
-Extend agents with webhook, client, or built-in system tools. Tools are defined inside `conversation_config.agent.prompt`:
+Extend agents with webhook, client, MCP, or built-in system tools. Tools are defined inside `conversation_config.agent.prompt`:
 
 ```python
 "prompt": {
@@ -156,6 +156,8 @@ Extend agents with webhook, client, or built-in system tools. Tools are defined 
 }
 ```
 
+`tools` accepts webhook, client, and MCP tool definitions. Configure MCP server connections with `mcp_server_ids` or `native_mcp_server_ids` in `conversation_config.agent.prompt`.
+
 **Client tools** run in browser:
 ```javascript
 clientTools: {
@@ -166,7 +168,7 @@ clientTools: {
 }
 ```
 
-See [Client Tools Reference](references/client-tools.md) for complete documentation.
+See [Client Tools Reference](references/client-tools.md) for webhook, client, MCP, and system tool configuration.
 
 ## Widget Embedding
 

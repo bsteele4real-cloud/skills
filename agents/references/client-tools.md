@@ -8,11 +8,12 @@ Extend your agent with custom capabilities. Tools let the agent take actions bey
 |------|-----------|----------|
 | **Webhook** | Server-side via HTTP | Database queries, API calls, secure operations |
 | **Client** | Browser-side JavaScript | UI updates, local storage, navigation |
+| **MCP** | MCP server integration | Remote tools exposed by configured MCP servers |
 | **System** | Built-in ElevenLabs | End call, transfer, standard actions |
 
 ## Where Tools Live
 
-Tools are defined inside `conversation_config.agent.prompt`. Webhook and client tools go in the `tools` array. System tools go in `built_in_tools`:
+Tools are defined inside `conversation_config.agent.prompt`. Webhook, client, and MCP tools go in the `tools` array. System tools go in `built_in_tools`:
 
 ```python
 conversation_config={
@@ -20,7 +21,7 @@ conversation_config={
         "prompt": {
             "prompt": "You are helpful.",
             "llm": "gemini-2.0-flash",
-            "tools": [...],            # Webhook and client tools
+            "tools": [...],            # Webhook, client, and MCP tools
             "built_in_tools": {...}     # System tools (end_call, transfer, etc.)
         }
     }
@@ -305,6 +306,12 @@ clientTools: {
 
 The agent receives this data and can say: "You have 3 items in your cart totaling $45.99."
 
+## MCP Tools
+
+Use MCP tools when you want an agent to call tools exposed by a Model Context Protocol server instead of defining an inline webhook or browser tool.
+
+Configure available servers in `conversation_config.agent.prompt` with `mcp_server_ids` or `native_mcp_server_ids`, then add MCP tool definitions to the `tools` array. The API reference documents MCP tool definitions under `MCPToolConfig`.
+
 ## System Tools (built_in_tools)
 
 Built-in tools provided by ElevenLabs. These are configured in `conversation_config.agent.prompt.built_in_tools` (not in the `tools` array):
@@ -363,6 +370,18 @@ Transfer to another ElevenLabs agent:
     }
 }
 ```
+
+### search_documentation
+
+Retrieve grounded answers from configured knowledge sources for retrieval-augmented generation workflows.
+
+For RAG retrieval configuration, the API reference includes these schema objects:
+
+| Object | Notable fields |
+|--------|----------------|
+| `MultiSourceConfigJson` | `source_names`, `source_overrides`, `merging_strategy`, `final_top_k`, `use_decomposition`, `use_reformulation`, `synthesize_response` |
+| `SourceConfigJson` | `name`, `db_name`, `collection_name`, `k_dense`, `k_keyword`, `dense_weight`, `keyword_weight`, `source_weight`, `vector_index_name`, `embedding_field`, `content_field`, `enabled` |
+| `SourceRetrievalConfig` | `name`, `collection_name`, `db_name`, `enabled`, `k_dense`, `k_keyword`, `dense_weight`, `keyword_weight`, `source_weight`, `vector_index_name`, `embedding_field`, `content_field`, `filter_field`, `num_candidates_multiplier`, `result_fields` |
 
 ## Best Practices
 

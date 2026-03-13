@@ -11,6 +11,8 @@ Add a voice AI agent to any website with the ElevenLabs conversation widget.
 
 This creates a floating button that users can click to start a voice conversation.
 
+Widget packages surface agent tool usage during a conversation and show a status badge for long-running tool calls.
+
 > **Note:** Widgets currently require public agents with authentication disabled. For authenticated flows, use the SDKs.
 
 ## Widget Attributes
