@@ -197,6 +197,8 @@ conversation_config={
 | ElevenLabs | `glm-45-air-fp8`, `qwen3-30b-a3b`, `gpt-oss-120b` (hosted, ultra-low latency) |
 | Custom | `custom-llm` (requires custom_llm config) |
 
+For live availability and deprecation metadata, call [`GET /v1/convai/llm/list`](https://elevenlabs.io/docs/api-reference/llm/list). The response includes `deprecation_info`, `max_context_limit`, `max_tokens_limit`, and capability flags such as `supports_image_input`, `supports_document_input`, and `supports_parallel_tool_calls`.
+
 ### Custom LLM
 
 The `custom_llm` field is nested inside `conversation_config.agent.prompt`:
@@ -247,6 +249,8 @@ platform_settings={
 | `summary_language` | string | Language for conversation analysis outputs such as summaries, titles, evaluation rationales, and data collection rationales. If omitted, ElevenLabs infers it from the conversation. |
 | `widget` | object | Hosted widget and shareable page configuration. See the widget table below for selected options. |
 | `auth` | object | Authentication and origin restrictions for agent access |
+| `guardrails` | object | Built-in guardrails that keep conversations on-topic and resist prompt injection |
+| `privacy` | object | Privacy controls for stored conversation history and related artifacts |
 | `call_limits` | object | Concurrency and daily usage limits |
 
 ### auth
@@ -265,6 +269,17 @@ platform_settings={
 | `daily_limit` | int | Max conversations per day (default: 100000) |
 | `bursting_enabled` | bool | Allow exceeding limits at 2x cost (default: true) |
 
+### guardrails
+
+Use `platform_settings.guardrails` to enable built-in conversation safety controls.
+
+| Guardrail | Description |
+|-----------|-------------|
+| `focus` | Reinforces the system prompt so the agent stays directed, relevant, and on-topic in longer conversations |
+| `prompt_injection` | Detects user attempts to override instructions or manipulate the system prompt before the agent responds |
+
+The older `alignment` guardrail is no longer available.
+
 ### widget
 
 Use `platform_settings.widget` to configure the hosted widget and shareable page defaults. For client-side embed attributes, see the widget embedding reference.
@@ -276,6 +291,17 @@ Use `platform_settings.widget` to configure the hosted widget and shareable page
 | `show_conversation_id` | bool | `true` | Whether to show the conversation ID after disconnection |
 | `strip_audio_tags` | bool | `true` | Whether to strip audio markup from messages |
 | `syntax_highlight_theme` | string | auto | Code block syntax highlighting theme (`light` or `dark`); omit it to let the widget auto-detect |
+
+### privacy
+
+Enterprise workspaces can use `platform_settings.privacy.conversation_history_redaction` to redact sensitive entities from stored conversation history, analysis artifacts, audio, and transcript/audio webhooks.
+
+#### conversation_history_redaction
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `enabled` | bool | Whether stored conversation history should be redacted |
+| `entities` | array[string] | Entity types to redact, such as `name`, `email_address`, `contact_number`, or `financial_id.payment_card.payment_card_number` |
 
 ### conversation (inside conversation_config)
 
@@ -449,6 +475,8 @@ curl -X PATCH "https://api.elevenlabs.io/v1/convai/agents/your-agent-id" \
 | `conversation_config.turn` | `turn_timeout`, `turn_eagerness`, `silence_end_call_timeout`, `soft_timeout_config` |
 | `conversation_config.conversation` | `max_duration_seconds`, `text_only`, `monitoring_enabled` |
 | `platform_settings` | `summary_language` |
+| `platform_settings.guardrails` | `focus`, `prompt_injection` |
+| `platform_settings.privacy.conversation_history_redaction` | `enabled`, `entities` |
 | `platform_settings.widget` | `dismissible`, `show_agent_status`, `show_conversation_id`, `strip_audio_tags`, `syntax_highlight_theme` |
 | `platform_settings.auth` | `enable_auth`, `allowlist` |
 | `platform_settings.call_limits` | `agent_concurrency_limit`, `daily_limit`, `bursting_enabled` |

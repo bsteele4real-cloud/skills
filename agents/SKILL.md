@@ -116,6 +116,17 @@ const conversation = useConversation({ onMessage: (msg) => console.log(msg) });
 await conversation.startSession({ signedUrl: token });
 ```
 
+## Conversation Search and Files
+
+Use the conversations APIs to attach supporting context to a live conversation and search historical transcripts:
+
+| Feature | Endpoint | Notes |
+|---------|----------|-------|
+| Upload conversation file | `POST /v1/convai/conversations/{conversation_id}/files` | Uploads a file to a conversation via `multipart/form-data` |
+| Delete conversation file | `DELETE /v1/convai/conversations/{conversation_id}/files/{file_id}` | Deletes a previously uploaded file if it has not already been used in the conversation |
+| Text search | `GET /v1/convai/conversations/messages/text-search` | Full-text and fuzzy transcript search with filters such as agent, rating, tool name, language, and time ranges |
+| Smart search | `GET /v1/convai/conversations/messages/smart-search` | Semantic transcript search by meaning and intent |
+
 ## Configuration
 
 | Provider | Models |
@@ -125,6 +136,8 @@ await conversation.startSession({ signedUrl: token });
 | Google | `gemini-3.1-flash-lite-preview`, `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`, `gemini-2.0-flash-lite` |
 | ElevenLabs | `glm-45-air-fp8`, `qwen3-30b-a3b`, `gpt-oss-120b` |
 | Custom | `custom-llm` (bring your own endpoint) |
+
+For live model metadata and deprecation signals, call [`GET /v1/convai/llm/list`](https://elevenlabs.io/docs/api-reference/llm/list). The response includes `deprecation_info`, `max_context_limit`, `max_tokens_limit`, and capability flags such as `supports_image_input`, `supports_document_input`, and `supports_parallel_tool_calls`.
 
 **Popular voices:** `JBFqnCBsd6RMkjVDRZzb` (George), `EXAVITQu4vr4xnSDxMaL` (Sarah), `onwK4e9ZLuTAKqWW03F9` (Daniel), `XB0fDUnXU5powFXDhCwa` (Charlotte)
 

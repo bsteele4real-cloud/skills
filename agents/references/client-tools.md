@@ -27,6 +27,12 @@ conversation_config={
 }
 ```
 
+## MCP Servers
+
+Attach workspace MCP servers to agents with `conversation_config.agent.prompt.mcp_server_ids` or `native_mcp_server_ids`.
+
+When the MCP server itself requires managed authentication, create or update it with [`POST /v1/convai/mcp-servers`](https://elevenlabs.io/docs/api-reference/mcp/create) and set its `auth_connection` to a workspace-managed auth connection. MCP auth connections support OAuth2 Client Credentials, Basic Auth, Bearer Auth, JWT, and custom header authentication so the workspace can manage credentials and token refresh outside the agent prompt.
+
 ## Webhook Tools
 
 Execute server-side logic when the agent needs external data or actions.
