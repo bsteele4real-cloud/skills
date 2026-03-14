@@ -9,7 +9,7 @@ Skill files are evergreen source-of-truth documentation for current behavior. Us
 3. For each affected skill, read the current files and make targeted updates
 4. Verify each delta against the changelog and each documented detail against the API reference
 5. Self-check all edits before committing
-6. Create a branch, commit changes, and open a PR referencing the issue
+6. Create a branch, commit changes if needed, and return a markdown report to the invoking user or agent
 
 ## Step 1: Find the issue
 
@@ -72,7 +72,7 @@ Before making any edits, fetch and read the actual source material. The brief an
    - TTS: `https://elevenlabs.io/docs/api-reference/text-to-speech/convert`
    - STT: `https://elevenlabs.io/docs/api-reference/speech-to-text/convert`
 3. **For each bullet in the brief**, find the corresponding section in the API reference. Note the exact field names, types, nesting, and allowed values for the final docs.
-4. If a feature appears in the brief/changelog but the API reference does not provide enough schema detail, do not create field tables or code examples for it. Put it under "Needs Manual Authoring" in the PR.
+4. If a feature appears in the brief/changelog but the API reference does not provide enough schema detail, do not create field tables or code examples for it. Put it under "Needs Manual Authoring" in the final report.
 
 Do NOT proceed to editing until you have read the actual API reference for every field, parameter, or schema you intend to document. If a referenced page returns an error or doesn't contain the expected information, flag it — do not guess.
 
@@ -83,7 +83,7 @@ Not every changelog bullet requires a skill-file edit. Before editing, run this 
 1. **Map to a natural home first.** Try to place the change in an existing section/table/list/example in `SKILL.md` or `references/*.md`.
 2. **Edit only when fit is clear.** If a natural home exists, make the smallest useful update there.
 3. **Prefer no-op over forced structure.** If no natural home exists, do not add a one-off sentence or heading just to "cover" the bullet.
-4. **Record no-op in PR.** Put skipped bullets under `No Skill Change Needed` in the PR with a one-line reason and source link.
+4. **Record no-op in report.** Put skipped bullets under `No Skill Change Needed` in the final report with a one-line reason and source link.
 5. **Only add a new section when all are true:** the feature is substantial, user-facing, reusable, and clearly missing from current structure.
 
 ### Fit examples
@@ -126,7 +126,7 @@ For each bullet that passes Step 3.6, identify the **affected area** (bolded in 
   - Bad: `As of 2026-02-23, agents now support X.`
   - Good: `Agents support X.`
 - **Never fabricate example values.** If you're adding a code example, use values from source docs and present them as current behavior. Do not invent model IDs, field names, or configuration values that "seem right."
-- **Not every changelog bullet requires a skill edit.** If an item has no natural home in existing docs, choose no-op and document that in the PR.
+- **Not every changelog bullet requires a skill edit.** If an item has no natural home in existing docs, choose no-op and document that in the final report.
 - **Do not create a new section solely because a changelog bullet exists.**
 - **Do not insert orphan content.** Never add standalone lines or mini-sections that do not belong to surrounding structure.
 - **New sections require justification.** Create a new section only when the concept is substantial, reusable, user-facing, and cannot be documented cleanly by extending existing sections.
@@ -147,7 +147,7 @@ For each bullet that passes Step 3.6, identify the **affected area** (bolded in 
 - Documenting a new schema or configuration object
 - Adding field tables for features that don't already have documentation in the skills
 
-For high-risk changes where you cannot verify the exact schema, do not add placeholder sections in skill files. Record the item under "Needs Manual Authoring" in the PR. If the schema is verified but there is no natural home in current skill structure, record it under "No Skill Change Needed" instead of forcing a section.
+For high-risk changes where you cannot verify the exact schema, do not add placeholder sections in skill files. Record the item under "Needs Manual Authoring" in the final report. If the schema is verified but there is no natural home in current skill structure, record it under "No Skill Change Needed" instead of forcing a section.
 
 ### Style rules
 
@@ -158,7 +158,7 @@ For high-risk changes where you cannot verify the exact schema, do not add place
 - When adding new parameters to code examples, only add them if they're significant enough to demonstrate. Not every optional field needs a code example.
 - If the brief mentions an SDK version bump but no method signature changes, update any version-specific comments but don't change code examples.
 - Prefer extending existing headings over creating new headings.
-- If a bullet has no natural documentation home, leave skill files unchanged and capture that decision in the PR.
+- If a bullet has no natural documentation home, leave skill files unchanged and capture that decision in the final report.
 
 ## Step 4.5: Self-check before committing
 
@@ -170,38 +170,40 @@ Review every change you made and verify:
 4. No code example contains fabricated values (model IDs, config names, etc.) that you didn't find in the source documentation.
 5. No edited `SKILL.md` or `references/*.md` line references a changelog, brief, issue, PR, or date as part of feature documentation.
 6. No release-note phrasing remains in skill files (e.g., "added in", "introduced in", "as of", "now supports", "the changelog added").
-7. Any historical/provenance notes are kept in the PR body only, not in skill files.
+7. Any historical/provenance notes are kept in the final report only, not in skill files.
 8. Every new heading/section is justified by Step 3.6 and is not a placeholder for a single changelog bullet.
 9. No orphan insertions remain (standalone one-off sentences that do not fit the section).
-10. Every brief bullet is accounted for via one of: (a) natural-home docs update, (b) justified new section, (c) "No Skill Change Needed", or (d) "Needs Manual Authoring" in the PR.
+10. Every brief bullet is accounted for via one of: (a) natural-home docs update, (b) justified new section, (c) "No Skill Change Needed", or (d) "Needs Manual Authoring" in the final report.
 
-If any change fails this check, revert it. Move it to "Needs Manual Authoring" or "No Skill Change Needed" in the PR description, as appropriate.
+If any change fails this check, revert it. Move it to "Needs Manual Authoring" or "No Skill Change Needed" in the final report, as appropriate.
 
-## Step 5: Create branch and PR
+## Step 5: Create branch, commit, and return report
 
 ```bash
 git checkout -b skills-update/YYYY-MM-DD
 git add -A
-git commit -m "Update skills from changelog YYYY-MM-DD"
-git push -u origin HEAD
+git diff --cached --quiet || git commit -m "Update skills from changelog YYYY-MM-DD"
 ```
 
-Create the PR:
+After the edits are complete, return a markdown report in the final response instead of opening a PR.
 
-```bash
-gh pr create --repo elevenlabs/skills \
-  --title "Update skills — YYYY-MM-DD" \
-  --body-file /tmp/skills-pr-body.md
-```
-
-The PR body should follow this structure:
+The report should follow this structure:
 
 ```markdown
+# Skills Update Report
+
+## Outcome
+
+- Issue: `#ISSUE_NUMBER` - Skills Update Brief — YYYY-MM-DD
+- Branch: `skills-update/YYYY-MM-DD`
+- Commit: `<commit sha or "No commit created">`
+- Result: `<updated skills | no skill changes needed | partial update>`
+
 ## Summary
 
 Updates skills based on the weekly changelog brief.
 
-Closes #ISSUE_NUMBER
+If the brief's Summary says changes are breaking, add a short warning here describing which examples or docs may need migration guidance.
 
 ### Changes
 
@@ -234,21 +236,29 @@ they have no natural home in current skill structure. For each, include:
 
 If no items apply, write "None."
 
+### Open Questions
+
+List blockers, ambiguous source material, or follow-up items for the next human/agent.
+
+If no items apply, write "None."
+
 ### Source
 
 [Skills Update Brief — YYYY-MM-DD](#ISSUE_NUMBER)
 [Changelog YYYY-MM-DD](https://elevenlabs.io/docs/changelog/YYYY-MM-DD)
 ```
 
+Return only the completed markdown report in the final response unless the invoking user explicitly asks for extra commentary.
+
 ## Important
 
 - Do not modify skills that are not mentioned in the brief.
 - Do not update the `openclaw/` directory — that is community-maintained.
 - Do not change the YAML frontmatter in SKILL.md files unless the brief specifically calls for it (e.g., description change).
-- If the brief mentions a change you cannot verify against the API reference (or another canonical documentation page), do NOT add it to the skill files. Instead, list it in the PR description under "Needs Manual Authoring" with what the brief says and why you couldn't verify it. A wrong code example is worse than a missing one.
-- If a brief item is verified but does not fit naturally into existing skill structure, do NOT force a new section or sentence. List it under "No Skill Change Needed" in the PR with a short rationale.
-- If the brief's Summary says changes are "breaking", add a warning in the PR description highlighting which examples may need migration guidance.
-- Keep changelog dates, issue references, and release-history wording in the PR/issue context only — never in `SKILL.md` or `references/*.md`.
+- If the brief mentions a change you cannot verify against the API reference (or another canonical documentation page), do NOT add it to the skill files. Instead, list it in the final report under "Needs Manual Authoring" with what the brief says and why you couldn't verify it. A wrong code example is worse than a missing one.
+- If a brief item is verified but does not fit naturally into existing skill structure, do NOT force a new section or sentence. List it under "No Skill Change Needed" in the final report with a short rationale.
+- If the brief's Summary says changes are "breaking", add a warning in the report highlighting which examples may need migration guidance.
+- Keep changelog dates, issue references, and release-history wording in the report/issue context only — never in `SKILL.md` or `references/*.md`.
 
 ## Note on brief quality
 
