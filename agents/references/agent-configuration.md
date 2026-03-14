@@ -220,10 +220,15 @@ conversation_config={
 
 ## platform_settings
 
-Platform-level configuration for security and limits.
+Platform-level configuration for security, limits, summaries, and widget behavior.
 
 ```python
 platform_settings={
+    "summary_language": "en",
+    "widget": {
+        "show_agent_status": True,
+        "show_conversation_id": True
+    },
     "auth": {
         "enable_auth": True,
         "allowlist": [{"hostname": "example.com"}]
@@ -234,6 +239,15 @@ platform_settings={
     }
 }
 ```
+
+### Top-Level Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `summary_language` | string | Language for conversation analysis outputs such as summaries, titles, evaluation rationales, and data collection rationales. If omitted, ElevenLabs infers it from the conversation. |
+| `widget` | object | Hosted widget and shareable page configuration. See the widget table below for selected options. |
+| `auth` | object | Authentication and origin restrictions for agent access |
+| `call_limits` | object | Concurrency and daily usage limits |
 
 ### auth
 
@@ -250,6 +264,18 @@ platform_settings={
 | `agent_concurrency_limit` | int | Max simultaneous conversations (default: -1, unlimited) |
 | `daily_limit` | int | Max conversations per day (default: 100000) |
 | `bursting_enabled` | bool | Allow exceeding limits at 2x cost (default: true) |
+
+### widget
+
+Use `platform_settings.widget` to configure the hosted widget and shareable page defaults. For client-side embed attributes, see the widget embedding reference.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `dismissible` | bool | `false` | Whether the widget can be dismissed by the user |
+| `show_agent_status` | bool | `false` | Whether to show working, done, or error status while tools are running |
+| `show_conversation_id` | bool | `true` | Whether to show the conversation ID after disconnection |
+| `strip_audio_tags` | bool | `true` | Whether to strip audio markup from messages |
+| `syntax_highlight_theme` | string | auto | Code block syntax highlighting theme (`light` or `dark`); omit it to let the widget auto-detect |
 
 ### conversation (inside conversation_config)
 
@@ -422,6 +448,8 @@ curl -X PATCH "https://api.elevenlabs.io/v1/convai/agents/your-agent-id" \
 | `conversation_config.asr` | `quality`, `provider`, `keywords`, `user_input_audio_format` |
 | `conversation_config.turn` | `turn_timeout`, `turn_eagerness`, `silence_end_call_timeout`, `soft_timeout_config` |
 | `conversation_config.conversation` | `max_duration_seconds`, `text_only`, `monitoring_enabled` |
+| `platform_settings` | `summary_language` |
+| `platform_settings.widget` | `dismissible`, `show_agent_status`, `show_conversation_id`, `strip_audio_tags`, `syntax_highlight_theme` |
 | `platform_settings.auth` | `enable_auth`, `allowlist` |
 | `platform_settings.call_limits` | `agent_concurrency_limit`, `daily_limit`, `bursting_enabled` |
 

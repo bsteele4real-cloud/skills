@@ -5,6 +5,7 @@
 - [compose](#compose)
 - [composition_plan.create](#composition_plancreate)
 - [compose_detailed](#compose_detailed)
+- [upload](#upload)
 - [Error Handling](#error-handling)
 
 ## compose
@@ -134,6 +135,40 @@ print(result.json)
 # Save the audio
 with open(result.filename, "wb") as f:
     f.write(result.audio)
+```
+
+## upload
+
+Upload a music file for later inpainting workflows. This endpoint is available to enterprise clients with access to the inpainting feature.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `file` | file | Yes | The audio file to upload |
+| `extract_composition_plan` | boolean | No | If `true`, the response includes an extracted composition plan and may take longer to return |
+
+### Returns
+
+| Field | Description |
+|-------|-------------|
+| `song_id` | Unique identifier for the uploaded song |
+| `composition_plan` | Extracted composition plan, or `null` when `extract_composition_plan` is not enabled |
+
+### Python
+
+```python
+client.music.upload(
+    file="example_file",
+)
+```
+
+### cURL
+
+```bash
+curl -X POST "https://api.elevenlabs.io/v1/music/upload" \
+  -H "xi-api-key: $ELEVENLABS_API_KEY" \
+  -F "file=@<file1>"
 ```
 
 ## Error Handling
