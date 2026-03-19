@@ -366,14 +366,16 @@ def run_functional_eval_for_skill(
             f"Create an outputs/ directory if needed."
         )
 
-        # Run claude -p
-        cmd = ["claude", "-p", full_prompt, "--output-format", "json"]
+        # Run claude -p with text output for readable response
+        cmd = ["claude", "-p", full_prompt, "--output-format", "text",
+               "--allowedTools", "Write,Edit,Bash,Read,Glob,Grep"]
         if model:
             cmd.extend(["--model", model])
 
         env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
 
         t0 = time.time()
+        response_text = ""
         try:
             result = subprocess.run(
                 cmd,
@@ -386,16 +388,29 @@ def run_functional_eval_for_skill(
             elapsed = time.time() - t0
             success = result.returncode == 0
 
-            # Save transcript
-            (eval_dir / "transcript.txt").write_text(result.stdout)
+            response_text = result.stdout
+
+            # Save full response
+            (eval_dir / "response.md").write_text(response_text)
             if result.stderr:
                 (eval_dir / "stderr.txt").write_text(result.stderr)
 
-            # Parse response for grading
-            response_text = result.stdout
+            # Include output files in grading context
+            grading_text = response_text
+            outputs_dir = eval_dir / "outputs"
+            if outputs_dir.is_dir():
+                for out_file in sorted(outputs_dir.iterdir()):
+                    if out_file.is_file() and out_file.suffix in (
+                        ".py", ".js", ".ts", ".jsx", ".tsx", ".sh", ".json", ".yaml", ".yml", ".md", ".txt",
+                    ):
+                        try:
+                            content = out_file.read_text(errors="replace")
+                            grading_text += f"\n\n--- {out_file.name} ---\n{content}"
+                        except Exception:
+                            pass
 
             # Grade against expectations
-            grades = grade_expectations(response_text, expectations)
+            grades = grade_expectations(grading_text, expectations)
 
             passed = sum(1 for g in grades if g["passed"])
             total = len(grades)
@@ -403,12 +418,14 @@ def run_functional_eval_for_skill(
         except subprocess.TimeoutExpired:
             elapsed = time.time() - t0
             success = False
+            response_text = "[TIMED OUT after %ds]" % timeout
             grades = [{"text": e, "passed": False, "evidence": "Timed out"} for e in expectations]
             passed = 0
             total = len(expectations)
         except Exception as e:
             elapsed = time.time() - t0
             success = False
+            response_text = "[ERROR: %s]" % str(e)
             grades = [{"text": e, "passed": False, "evidence": str(e)} for e in expectations]
             passed = 0
             total = len(expectations)
@@ -422,6 +439,7 @@ def run_functional_eval_for_skill(
             "pass_rate": round(passed / total, 2) if total > 0 else 0,
             "elapsed_seconds": round(elapsed, 1),
             "grades": grades,
+            "response": response_text,
         }
         eval_results.append(eval_result)
 
@@ -668,12 +686,28 @@ def generate_report(trigger_results, functional_results, output_dir):
             lines.append(f"### {r['skill']} ({s['total_passed']}/{s['total_expectations']} passed, {r['elapsed_seconds']}s)")
             lines.append("")
             for ev in r["results"]:
-                lines.append(f"**Eval {ev['eval_id']}** ({ev['passed']}/{ev['total']}): {ev['prompt'][:70]}...")
-                failures = [g for g in ev["grades"] if not g["passed"]]
-                if failures:
-                    for g in failures:
-                        lines.append(f"  - FAIL: {g['text'][:70]} — {g['evidence'][:50]}")
+                lines.append(f"#### Eval {ev['eval_id']} ({ev['passed']}/{ev['total']})")
                 lines.append("")
+                lines.append(f"**Prompt:** {ev['prompt']}")
+                lines.append("")
+
+                # Expectations
+                lines.append("**Expectations:**")
+                for g in ev["grades"]:
+                    status = "PASS" if g["passed"] else "FAIL"
+                    lines.append(f"- [{status}] {g['text']} — {g['evidence']}")
+                lines.append("")
+
+                # Generated response
+                response = ev.get("response", "")
+                if response:
+                    lines.append("<details>")
+                    lines.append(f"<summary>Generated Response ({len(response)} chars)</summary>")
+                    lines.append("")
+                    lines.append(response)
+                    lines.append("")
+                    lines.append("</details>")
+                    lines.append("")
 
     return "\n".join(lines)
 
