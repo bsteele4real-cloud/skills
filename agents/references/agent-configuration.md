@@ -278,12 +278,39 @@ Use `platform_settings.guardrails` to configure built-in safety controls for use
 | `version` | string | Guardrail config version. Use `"1"` for the current schema. |
 | `focus` | object | Keeps the agent on-topic and aligned with the configured task. |
 | `prompt_injection` | object | Detects prompt injection and instruction override attempts. |
+| `content` | object | Configures category-specific content moderation guardrails. |
 
 **focus / prompt_injection:**
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `is_enabled` | bool | Enables the guardrail. |
+
+**content:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `execution_mode` | string | Guardrail execution mode: `streaming` or `blocking`. |
+| `config` | object | Category threshold settings for content moderation. |
+
+**content.config:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sexual` | object | Threshold settings for sexual content. |
+| `violence` | object | Threshold settings for violent content. |
+| `harassment` | object | Threshold settings for harassment. |
+| `self_harm` | object | Threshold settings for self-harm content. |
+| `profanity` | object | Threshold settings for profanity. |
+| `religion_or_politics` | object | Threshold settings for religion or politics content. |
+| `medical_and_legal_information` | object | Threshold settings for medical or legal information. |
+
+**content.config.\<category\>:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `is_enabled` | bool | Enables moderation for the category. |
+| `threshold` | number or string | Category threshold as a numeric score or one of `low`, `medium`, or `high`. |
 
 ### privacy
 
