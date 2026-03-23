@@ -92,7 +92,10 @@ curl -X POST "https://api.elevenlabs.io/v1/convai/agents/create?enable_versionin
 
 **Server-side (Python):** Get signed URL for client connection:
 ```python
-signed_url = client.conversational_ai.conversations.get_signed_url(agent_id="your-agent-id")
+signed_url = client.conversational_ai.conversations.get_signed_url(
+    agent_id="your-agent-id",
+    environment="staging",
+)
 ```
 
 **Client-side (JavaScript):**
@@ -101,6 +104,7 @@ import { Conversation } from "@elevenlabs/client";
 
 const conversation = await Conversation.startSession({
   agentId: "your-agent-id",
+  environment: "staging",
   onMessage: (msg) => console.log("Agent:", msg.message),
   onUserTranscript: (t) => console.log("User:", t.message),
   onError: (e) => console.error(e)
@@ -112,7 +116,7 @@ const conversation = await Conversation.startSession({
 import { useConversation } from "@elevenlabs/react";
 
 const conversation = useConversation({ onMessage: (msg) => console.log(msg) });
-// Get signed URL from backend, then:
+// Get a signed URL for the target environment from your backend, then:
 await conversation.startSession({ signedUrl: token });
 ```
 
@@ -137,6 +141,8 @@ See [Agent Configuration](references/agent-configuration.md) for all options.
 ## Tools
 
 Extend agents with webhook, client, or built-in system tools. Tools are defined inside `conversation_config.agent.prompt`:
+
+Workspace environment variables can resolve per-environment server tool URLs, headers, and auth connections, and runtime system variables such as `{{system__conversation_history}}` can pass full conversation context into tool calls when needed.
 
 ```python
 "prompt": {

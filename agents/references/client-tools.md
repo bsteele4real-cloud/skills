@@ -143,6 +143,32 @@ Or for structured data:
 }
 ```
 
+Use workspace environment variables to keep a single server tool configuration working across
+staging and production. `{{system_env__label}}` works in server tool URLs, secret environment
+variables can populate `request_headers`, and auth-connection environment variables can populate
+`api_schema.auth_connection`. The same environment-variable resolution model also applies to MCP
+server connections.
+
+```json
+{
+  "api_schema": {
+    "url": "https://{{system_env__api_host}}.example.com/orders",
+    "method": "GET",
+    "request_headers": {
+      "X-Api-Key": { "env_var_label": "orders_api_key" }
+    },
+    "auth_connection": { "env_var_label": "orders_oauth" }
+  }
+}
+```
+
+Workspace auth connections support OAuth2 client credentials, OAuth2 JWT, private key JWT,
+basic auth, bearer auth, and custom header auth.
+
+System dynamic variables are also available in tool parameters and headers. Use
+`{{system__conversation_history}}` when a webhook or sub-agent needs the full conversation
+context as a lazily evaluated JSON history object with user, agent, and tool entries.
+
 ### Webhook Tool Options
 
 | Field | Type | Default | Description |

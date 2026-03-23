@@ -187,6 +187,11 @@ conversation_config={
 | `native_mcp_server_ids` | array | - | Native MCP server IDs |
 | `ignore_default_personality` | bool | - | Skip default personality instructions |
 
+Workspace environment variables let one agent configuration span multiple deployments. Use
+`{{system_env__label}}` in server tool and MCP server URLs, `{ "env_var_label": "orders_api_key" }`
+for secret-backed tool headers, and `{ "env_var_label": "orders_oauth" }` in `auth_connection`
+to resolve per-environment auth connections at runtime.
+
 ### LLM Providers
 
 | Provider | Model IDs |
@@ -278,6 +283,7 @@ Use `platform_settings.guardrails` to configure built-in safety controls for use
 | `version` | string | Guardrail config version. Use `"1"` for the current schema. |
 | `focus` | object | Keeps the agent on-topic and aligned with the configured task. |
 | `prompt_injection` | object | Detects prompt injection and instruction override attempts. |
+| `custom` | object | Configures user-defined response validation guardrails. |
 | `content` | object | Configures category-specific content moderation guardrails. |
 
 **focus / prompt_injection:**
@@ -311,6 +317,11 @@ Use `platform_settings.guardrails` to configure built-in safety controls for use
 |-------|------|-------------|
 | `is_enabled` | bool | Enables moderation for the category. |
 | `threshold` | number or string | Category threshold as a numeric score or one of `low`, `medium`, or `high`. |
+
+Blocking content guardrails and custom guardrails support a `trigger_action` that either ends
+the session immediately or retries the response. Retry removes the blocked reply, injects your
+feedback as a system message, and re-generates up to 3 times before the platform falls back to
+ending the session. Feedback templates can use `{{trigger_reason}}` and `{{agent_message}}`.
 
 ### privacy
 
