@@ -17,6 +17,7 @@
 | `no_verbatim` | boolean | No | If `true`, removes filler words, false starts, and non-speech sounds (supported with `scribe_v2`) |
 | `use_multi_channel` | boolean | No | Split multichannel audio into separate transcripts (default: `false`; max 5 channels, max 1 hour) |
 | `cloud_storage_url` | string | No | HTTPS URL to transcribe instead of uploading a file (max 2GB) |
+| `source_url` | string | No | URL of an audio or video file to transcribe, including hosted media, YouTube, TikTok, and other video services |
 | `webhook` | boolean | No | Process async and send result to webhook (default: `false`) |
 | `webhook_id` | string | No | Target specific webhook (only when `webhook=true`) |
 | `webhook_metadata` | string or object | No | Custom metadata included in webhook responses (max 16KB) |
@@ -72,6 +73,37 @@ curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
   -F "language_code=eng" \
   -F "timestamps_granularity=word" \
   -F "diarize=true"
+```
+
+## Transcribing from a URL
+
+Use `source_url` when the media is already hosted online and you do not want to upload a file directly.
+
+### Python
+
+```python
+result = client.speech_to_text.convert(
+    model_id="scribe_v2",
+    source_url="https://example.com/interview.mp4",
+)
+```
+
+### JavaScript
+
+```javascript
+const result = await client.speechToText.convert({
+  modelId: "scribe_v2",
+  sourceUrl: "https://example.com/interview.mp4",
+});
+```
+
+### cURL
+
+```bash
+curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
+  -H "xi-api-key: $ELEVENLABS_API_KEY" \
+  -F "model_id=scribe_v2" \
+  -F "source_url=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 ## Response Structure

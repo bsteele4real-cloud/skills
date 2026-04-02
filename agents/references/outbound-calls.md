@@ -23,6 +23,9 @@ See the [main agents skill](../SKILL.md#outbound-calls) for basic Python, JavaSc
 | `call_recording_enabled` | boolean | No | Whether to let Twilio record the call |
 | `telephony_call_config` | object | No | Telephony call settings like ringing timeout |
 
+`conversation_initiation_client_data` also accepts `branch_id` to route the call to a specific
+agent branch and `environment` to control how environment variables resolve for that call.
+
 ## Response
 
 ```json
@@ -54,6 +57,8 @@ response = client.conversational_ai.twilio.outbound_call(
     to_number="+1234567890",
     call_recording_enabled=True,
     conversation_initiation_client_data={
+        "branch_id": "branch_support_staging",
+        "environment": "staging",
         "conversation_config_override": {
             "agent": {
                 "first_message": "Hello! This is a reminder about your appointment tomorrow.",
@@ -80,6 +85,8 @@ const response = await client.conversationalAi.twilio.outboundCall({
   toNumber: "+1234567890",
   callRecordingEnabled: true,
   conversationInitiationClientData: {
+    branchId: "branch_support_staging",
+    environment: "staging",
     conversationConfigOverride: {
       agent: {
         firstMessage: "Hello! This is a reminder about your appointment tomorrow.",
@@ -125,6 +132,13 @@ const response = await client.conversationalAi.twilio.outboundCall({
 ### Dynamic Variables
 
 Pass custom data to your agent's prompt using `dynamic_variables`. Reference them in your agent's prompt with `{{variable_name}}` syntax.
+
+### Branch and Environment Routing
+
+Use `branch_id` inside `conversation_initiation_client_data` for per-call branch routing on
+Twilio or SIP trunk outbound calls. Use `environment` alongside it when the call should resolve
+workspace environment variables against a non-default deployment target such as `staging` or
+`production`.
 
 When assigning dynamic variables, you can use the `sanitize` option to remove sensitive values from tool responses before they are sent to the LLM and transcript, while still allowing variable assignment:
 
