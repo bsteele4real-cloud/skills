@@ -13,6 +13,8 @@ This creates a floating button that users can click to start a voice conversatio
 
 > **Note:** Widgets currently require public agents with authentication disabled. For authenticated flows, use the SDKs.
 
+If you omit an explicit widget language override, the widget picks an initial language in this order: the widget's configured language, the user's last language selection stored in localStorage, the browser's `navigator.languages` preferences, then the agent's default language.
+
 ## Widget Attributes
 
 ### Required
@@ -50,6 +52,8 @@ This creates a floating button that users can click to start a voice conversatio
 | `server-location` | Server region (`us`, `eu-residency`, `in-residency`, `global`) | `us` |
 | `dismissible` | Allow the user to minimize the widget | `false` |
 | `disable-banner` | Hide "Powered by ElevenLabs" | `false` |
+
+Language selection persists to localStorage after the user changes it, so returning users keep their previous widget language automatically.
 
 ## Examples
 

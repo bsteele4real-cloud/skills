@@ -33,27 +33,25 @@ from elevenlabs import ElevenLabs
 
 client = ElevenLabs()
 
-with open("audio.mp3", "rb") as audio_file:
-    result = client.speech_to_text.convert(
-        file=audio_file,
-        model_id="scribe_v2",
-        language_code="eng",
-        timestamps_granularity="word",
-        diarize=True,
-        keyterms=["ElevenLabs", "Scribe"]
-    )
+result = client.speech_to_text.convert(
+    cloud_storage_url="https://storage.example.com/audio.mp3?signature=abc123",
+    model_id="scribe_v2",
+    language_code="eng",
+    timestamps_granularity="word",
+    diarize=True,
+    keyterms=["ElevenLabs", "Scribe"]
+)
 ```
 
 ## JavaScript Example
 
 ```javascript
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
-import { createReadStream } from "fs";
 
 const client = new ElevenLabsClient();
 
 const result = await client.speechToText.convert({
-  file: createReadStream("audio.mp3"),
+  cloudStorageUrl: "https://storage.example.com/audio.mp3?signature=abc123",
   modelId: "scribe_v2",
   languageCode: "eng",
   timestampsGranularity: "word",
@@ -67,7 +65,7 @@ const result = await client.speechToText.convert({
 ```bash
 curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
   -H "xi-api-key: $ELEVENLABS_API_KEY" \
-  -F "file=@audio.mp3" \
+  -F "cloud_storage_url=https://storage.example.com/audio.mp3?signature=abc123" \
   -F "model_id=scribe_v2" \
   -F "language_code=eng" \
   -F "timestamps_granularity=word" \
@@ -81,6 +79,7 @@ curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
   "text": "The complete transcribed text from the audio file.",
   "language_code": "eng",
   "language_probability": 0.98,
+  "audio_duration_secs": 12.4,
   "words": [
     {
       "text": "The",
@@ -107,6 +106,7 @@ curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
 | `text` | string | Full transcription text |
 | `language_code` | string | Detected language (ISO 639-1 or ISO 639-3) |
 | `language_probability` | float | Confidence in detection (0-1) |
+| `audio_duration_secs` | float | Duration of the transcribed audio in seconds |
 | `words` | array | Word-level timestamps (if requested) |
 | `words[].text` | string | The transcribed word or spacing |
 | `words[].start` | float | Start time in seconds |
