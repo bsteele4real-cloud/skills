@@ -111,13 +111,27 @@ const conversation = await Conversation.startSession({
 });
 ```
 
-**React Hook:**
+**React Hook:** `useConversation` requires a `ConversationProvider` ancestor.
 ```typescript
-import { useConversation } from "@elevenlabs/react";
+import { ConversationProvider, useConversation } from "@elevenlabs/react";
 
-const conversation = useConversation({ onMessage: (msg) => console.log(msg) });
-// Get a signed URL for the target environment from your backend, then:
-await conversation.startSession({ signedUrl: token });
+function Agent({ signedUrl }: { signedUrl: string }) {
+  const conversation = useConversation({ onMessage: (msg) => console.log(msg) });
+
+  return (
+    <button onClick={() => conversation.startSession({ signedUrl })}>
+      Start conversation
+    </button>
+  );
+}
+
+function App({ signedUrl }: { signedUrl: string }) {
+  return (
+    <ConversationProvider>
+      <Agent signedUrl={signedUrl} />
+    </ConversationProvider>
+  );
+}
 ```
 
 ## Configuration

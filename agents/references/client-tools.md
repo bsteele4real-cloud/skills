@@ -163,7 +163,7 @@ server connections.
 ```
 
 Workspace auth connections support OAuth2 client credentials, OAuth2 JWT, private key JWT,
-basic auth, bearer auth, and custom header auth.
+basic auth, bearer auth, custom header auth, and mutual TLS (`mtls`).
 
 System dynamic variables are also available in tool parameters and headers. Use
 `{{system__conversation_history}}` when a webhook or sub-agent needs the full conversation
@@ -250,6 +250,45 @@ const conversation = await Conversation.startSession({
     },
   },
 });
+```
+
+### React Registration with `useConversationClientTool`
+
+When you use the React SDK, wrap your component tree in `ConversationProvider` and register
+client tools from components with `useConversationClientTool`. Handlers are cleaned up
+automatically on unmount.
+
+```typescript
+import {
+  ConversationProvider,
+  useConversation,
+  useConversationClientTool,
+} from "@elevenlabs/react";
+
+function Storefront() {
+  useConversationClientTool("show_product", async ({ productId }) => {
+    const modal = document.getElementById("product-modal");
+    modal.innerHTML = await fetchProductCard(productId);
+    modal.showModal();
+    return { success: true };
+  });
+
+  const conversation = useConversation();
+
+  return (
+    <button onClick={() => conversation.startSession({ agentId: "your-agent-id" })}>
+      Start
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <ConversationProvider>
+      <Storefront />
+    </ConversationProvider>
+  );
+}
 ```
 
 ### Registering Client Tools with Agent

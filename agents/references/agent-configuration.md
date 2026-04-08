@@ -55,6 +55,7 @@ conversation_config={
 | `first_message` | string | `""` | What the agent says when conversation starts |
 | `language` | string | `"en"` | ISO 639-1 language code (en, es, fr, etc.) |
 | `disable_first_message_interruptions` | bool | `false` | Prevent user from interrupting the first message |
+| `max_conversation_duration_message` | string | - | If non-empty, the message sent when `conversation.max_duration_seconds` is reached |
 | `hinglish_mode` | bool | `false` | When enabled and language is Hindi, agent responds in Hinglish |
 | `dynamic_variables` | object | - | Config with `dynamic_variable_placeholders` containing key-value pairs |
 | `prompt` | object | - | LLM configuration (see prompt section below) |
@@ -356,7 +357,17 @@ Use `platform_settings.widget` to configure the hosted widget and shareable page
 |-------|------|---------|-------------|
 | `max_duration_seconds` | int | `600` | Max conversation duration |
 | `text_only` | bool | `false` | Text-only mode (avoids audio pricing) |
+| `file_input` | object | - | Enables image and PDF uploads in chat for multimodal LLMs |
 | `monitoring_enabled` | bool | `false` | Enable real-time WebSocket monitoring |
+| `client_events` | array | - | Client events forwarded to the connected application |
+| `monitoring_events` | array | - | Events forwarded to monitoring WebSocket connections |
+
+**file_input:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `enabled` | bool | `true` | Allows end users to attach images or PDFs in chat when the selected LLM supports multimodal input |
+| `max_files_per_conversation` | int | `10` | Maximum number of uploaded files allowed in a single conversation |
 
 ## Additional Top-Level Fields
 
