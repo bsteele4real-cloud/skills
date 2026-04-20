@@ -9,6 +9,7 @@
 | `language_code` | string | No | Language hint (ISO 639-1 or ISO 639-3, e.g., `en` or `eng`) |
 | `timestamps_granularity` | string | No | `none`, `word`, or `character` (default: `word`) |
 | `diarize` | boolean | No | Enable speaker diarization (default: `false`; up to 32 speakers) |
+| `detect_speaker_roles` | boolean | No | Label diarized speakers as `agent` and `customer` instead of `speaker_0`, `speaker_1`, etc. Requires `diarize=true` and cannot be used with `use_multi_channel=true` |
 | `num_speakers` | integer | No | Maximum speakers to detect (up to 32 for batch) |
 | `diarization_threshold` | number | No | Tune diarization sensitivity (default: ~0.22; only when `diarize=true` and `num_speakers` is not set) |
 | `keyterms` | array | No | Terms to bias transcription (up to 100 terms; each ≤50 chars, ≤5 words) |
@@ -73,6 +74,50 @@ curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
   -F "language_code=eng" \
   -F "timestamps_granularity=word" \
   -F "diarize=true"
+```
+
+## Agent and Customer Role Detection
+
+Use `detect_speaker_roles` with diarization when you want speaker labels tailored for contact center recordings:
+
+### Python
+
+```python
+result = client.speech_to_text.convert(
+    file=audio_file,
+    model_id="scribe_v2",
+    diarize=True,
+    detect_speaker_roles=True
+)
+
+for word in result.words:
+    print(f"[{word.speaker_id}] {word.text}")
+```
+
+### JavaScript
+
+```javascript
+const result = await client.speechToText.convert({
+  file: createReadStream("call.mp3"),
+  modelId: "scribe_v2",
+  diarize: true,
+  detectSpeakerRoles: true,
+});
+
+for (const word of result.words ?? []) {
+  console.log(`[${word.speakerId}] ${word.text}`);
+}
+```
+
+### cURL
+
+```bash
+curl -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
+  -H "xi-api-key: $ELEVENLABS_API_KEY" \
+  -F "file=@call.mp3" \
+  -F "model_id=scribe_v2" \
+  -F "diarize=true" \
+  -F "detect_speaker_roles=true"
 ```
 
 ## Cloud Storage URL
