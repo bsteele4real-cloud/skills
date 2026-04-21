@@ -54,7 +54,7 @@ python3 evals/run_all.py -v
 # Trigger evals only — tests if skills fire for the right queries (~3 min)
 python3 evals/run_all.py --trigger-only -v
 
-# Functional evals only — tests if skills produce correct output (~10 min)
+# Functional evals only — tests if skills produce correct output (~15 min)
 python3 evals/run_all.py --functional-only -v
 
 # Specific skills
