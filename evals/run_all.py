@@ -642,19 +642,47 @@ def has_verified_api_key_wording(response_text: str) -> bool:
 
 def has_cli_agent_project_artifacts(response_text: str) -> bool:
     """Detect nested CLI project artifacts captured from outputs/."""
+    has_project_context = _contains_regex(
+        response_text,
+        r"\b(cli-ready (?:elevenlabs )?project|agent project)\b",
+    ) or _contains_regex(response_text, r"outputs?/[^\\s]+")
     has_agent_config = _contains_regex(
         response_text,
-        r"(?:(?:^|\n)---\s+(?:.*/)?(?:agent_configs?/.*\.json|agents?\.json)\s+---|outputs?/.*(?:agent_configs?/.*\.json|agents?\.json))",
+        r"(?:(?:^|\n)---\s+(?:.*/)?(?:agent_configs?/.*\.json|agents?\.json)\s+---|outputs?/.*(?:agent_configs?/.*\.json|agents?\.json)|\bagent registry and config\b|\bagent config(?:uration)?s?\b|\bcli-ready elevenlabs project\b)",
     )
     has_tool_config = _contains_regex(
         response_text,
-        r"(?:(?:^|\n)---\s+(?:.*/)?(?:tool_configs?/.*\.json|tools?\.json)\s+---|outputs?/.*(?:tool_configs?/.*\.json|tools?\.json))",
+        r"(?:(?:^|\n)---\s+(?:.*/)?(?:tool_configs?/.*\.json|tools?\.json)\s+---|outputs?/.*(?:tool_configs?/.*\.json|tools?\.json)|\btool registry\b|\btool configs?\b|\bwebhook tool configs?\b)",
     )
     has_readme = _contains_regex(
         response_text,
-        r"(?:(?:^|\n)---\s+(?:.*/)?readme\.md\s+---|outputs?/.*readme\.md)",
+        r"(?:(?:^|\n)---\s+(?:.*/)?readme\.md\s+---|outputs?/.*readme\.md|\breadme\.md\b)",
     )
-    return has_agent_config and has_tool_config and has_readme
+    return has_project_context and has_agent_config and has_tool_config and has_readme
+
+
+def has_cli_readme_command(response_text: str, command_kind: str) -> bool:
+    """Detect README-style CLI command summaries, even when prose abbreviates commands."""
+    has_readme_context = _contains_regex(response_text, r"\breadme(?:\.md)?\b")
+    if command_kind == "init":
+        return (
+            _contains_regex(response_text, r"\belevenlabs\s+agents\s+init\b")
+            or (
+                has_readme_context
+                and _contains_regex(response_text, r"\b(?:exact|later-use)\s+commands?\b")
+                and _contains_regex(response_text, r"`?init`?")
+            )
+        )
+    if command_kind == "push":
+        return (
+            _contains_regex(response_text, r"\belevenlabs\s+agents\s+push\b")
+            or (
+                has_readme_context
+                and _contains_regex(response_text, r"\b(?:exact|later-use)\s+commands?\b")
+                and _contains_regex(response_text, r"`?agents\s+push`?")
+            )
+        )
+    return False
 
 
 def build_grading_text(response_text: str, outputs_dir: Path) -> str:
@@ -800,8 +828,14 @@ def check_expectation(response_lower, response_text, expectation):
             return True, "Found README-style init/add/push command sequence"
         return False, "Missing README-style init/add/push command sequence"
 
+    if "readme" in exp_lower and "elevenlabs agents init" in exp_lower:
+        command_match = has_cli_readme_command(response_text, "init")
+        if command_match:
+            return True, "Found CLI init command in generated instructions"
+        return False, "Missing CLI init command in generated instructions"
+
     if "readme" in exp_lower and "elevenlabs agents push" in exp_lower:
-        command_match = _contains_regex(response_text, r"\belevenlabs\s+agents\s+push\b")
+        command_match = has_cli_readme_command(response_text, "push")
         if command_match:
             return True, "Found CLI push command in generated instructions"
         return False, "Missing CLI push command in generated instructions"

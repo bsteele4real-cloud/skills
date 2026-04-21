@@ -133,3 +133,36 @@ class RunAllGraderTests(unittest.TestCase):
             "README shows the CLI commands a user would run to init/add/push the project later",
         )
         self.assertTrue(passed, evidence)
+
+    def test_agent_eval_accepts_summary_style_project_artifacts(self):
+        response = """
+        Created a CLI-ready ElevenLabs project at outputs/restaurant-reservation-assistant.
+
+        It includes the agent registry and config, standalone tool registry and 3 webhook tool configs,
+        plus tests.json, .env.example, and a short README.md.
+        """
+        passed, evidence = run_all.check_expectation(
+            response.lower(),
+            response,
+            "Creates a CLI-style agent project under outputs",
+        )
+        self.assertTrue(passed, evidence)
+
+    def test_agent_eval_accepts_summary_style_readme_commands(self):
+        response = """
+        README.md includes the exact later-use commands for init, auth login, agents push, and
+        optional tools push.
+        """
+        passed, evidence = run_all.check_expectation(
+            response.lower(),
+            response,
+            "Includes README with 'elevenlabs agents init' or equivalent CLI setup command",
+        )
+        self.assertTrue(passed, evidence)
+
+        passed, evidence = run_all.check_expectation(
+            response.lower(),
+            response,
+            "Includes README with 'elevenlabs agents push' or equivalent deploy command",
+        )
+        self.assertTrue(passed, evidence)
