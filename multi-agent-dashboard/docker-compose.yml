@@ -1,0 +1,317 @@
+version: '3.8'
+
+services:
+  # Main orchestrator
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mad-orchestrator
+    environment:
+      - ROLE=orchestrator
+      - IMPROVEMENT_CYCLE_HOURS=24
+      - LOG_LEVEL=INFO
+      - STATE_PATH=/app/state
+      - AUDIT_PATH=/app/audit
+    volumes:
+      - orchestrator-state:/app/state
+      - audit-logs:/app/audit
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  # Dashboard API and UI
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mad-dashboard
+    command: python -m dashboard.server
+    ports:
+      - "8080:8080"
+    environment:
+      - ROLE=dashboard
+      - API_PORT=8080
+      - ORCHESTRATOR_URL=http://orchestrator:8000
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Emulator sandbox for link verification
+  emulator-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mad-emulator
+    environment:
+      - ROLE=emulator
+      - SANDBOX_ENABLED=true
+      - TIMEOUT_MS=30000
+      - MAX_CONCURRENT=5
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SYS_ADMIN  # Required for Chromium sandbox
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    networks:
+      - sandbox-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # Research Team (T01)
+  team-research:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T01
+      - TEAM_NAME=Research
+      - VOTING_STRATEGY=weighted
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Marketing Team (T02)
+  team-marketing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T02
+      - TEAM_NAME=Marketing
+      - VOTING_STRATEGY=majority
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Security Team (T03)
+  team-security:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T03
+      - TEAM_NAME=Security
+      - VOTING_STRATEGY=unanimous
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+      - emulator-sandbox
+    networks:
+      - agent-network
+      - sandbox-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Analytics Team (T04)
+  team-analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T04
+      - TEAM_NAME=Analytics
+      - VOTING_STRATEGY=weighted
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Video Team (T05)
+  team-video:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T05
+      - TEAM_NAME=Video
+      - VOTING_STRATEGY=majority
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  # Compliance Team (T06)
+  team-compliance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T06
+      - TEAM_NAME=Compliance
+      - VOTING_STRATEGY=supermajority
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Content Team (T07)
+  team-content:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T07
+      - TEAM_NAME=Content
+      - VOTING_STRATEGY=weighted
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Integration Team (T08)
+  team-integration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T08
+      - TEAM_NAME=Integration
+      - VOTING_STRATEGY=majority
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Orchestration Team (T09)
+  team-orchestration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T09
+      - TEAM_NAME=Orchestration
+      - VOTING_STRATEGY=weighted
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  # Quality Team (T10)
+  team-quality:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TEAM_ID=T10
+      - TEAM_NAME=Quality
+      - VOTING_STRATEGY=supermajority
+      - AGENT_COUNT=5
+    depends_on:
+      - orchestrator
+    networks:
+      - agent-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+networks:
+  agent-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+  sandbox-network:
+    driver: bridge
+    internal: true  # No external access
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+
+volumes:
+  orchestrator-state:
+  audit-logs:
