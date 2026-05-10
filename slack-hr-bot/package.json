@@ -1,0 +1,19 @@
+{
+  "name": "slack-hr-bot",
+  "version": "1.0.0",
+  "description": "HR assistant bot for Slack using ElevenLabs Conversational AI",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^1.0.0",
+    "@slack/bolt": "^3.17.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
