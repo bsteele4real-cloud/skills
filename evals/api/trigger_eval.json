@@ -1,0 +1,19 @@
+[
+  {"query": "how do i set up the elevenlabs python client?", "should_trigger": true},
+  {"query": "show me how to authenticate with the elevenlabs api", "should_trigger": true},
+  {"query": "what's the best way to handle elevenlabs rate limits?", "should_trigger": true},
+  {"query": "how do i check my elevenlabs api usage and character count?", "should_trigger": true},
+  {"query": "initialize elevenlabs client in javascript with error handling", "should_trigger": true},
+  {"query": "what are the common elevenlabs api error codes and how do i handle them?", "should_trigger": true},
+  {"query": "show me the elevenlabs api endpoints", "should_trigger": true},
+  {"query": "how do i use async elevenlabs client in python?", "should_trigger": true},
+  {"query": "configure elevenlabs sdk timeout and retries", "should_trigger": true},
+  {"query": "convert this text to speech using elevenlabs", "should_trigger": false},
+  {"query": "transcribe this audio file to text", "should_trigger": false},
+  {"query": "build a voice agent that answers customer questions", "should_trigger": false},
+  {"query": "generate a thunder sound effect", "should_trigger": false},
+  {"query": "create music with drums and bass", "should_trigger": false},
+  {"query": "remove background noise from this recording", "should_trigger": false},
+  {"query": "how do I set up my elevenlabs api key?", "should_trigger": false},
+  {"query": "list all my elevenlabs voices", "should_trigger": false}
+]
