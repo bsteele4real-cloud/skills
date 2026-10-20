@@ -1,0 +1,53 @@
+{
+  "skill_name": "api",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Show me how to initialize the ElevenLabs client in Python and check if my API key is working.",
+      "expected_output": "Python code that creates an ElevenLabs client and verifies the API key works",
+      "files": [],
+      "expectations": [
+        "Uses 'from elevenlabs import ElevenLabs' for the import",
+        "Creates a client with ElevenLabs()",
+        "Calls client.user.get() or similar to verify the key works",
+        "Shows how to handle potential errors"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a JavaScript function that calls the ElevenLabs API with proper error handling and retry logic for rate limits.",
+      "expected_output": "JavaScript code with ElevenLabs client and rate limit handling",
+      "files": [],
+      "expectations": [
+        "Imports from '@elevenlabs/elevenlabs-js' (NOT 'elevenlabs')",
+        "Creates an ElevenLabsClient instance",
+        "Implements try/catch for error handling",
+        "Handles 429 status code with retry/backoff logic"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I check my ElevenLabs character usage and subscription details using the API?",
+      "expected_output": "Code to retrieve user subscription and usage information",
+      "files": [],
+      "expectations": [
+        "Uses the ElevenLabs SDK",
+        "Accesses user or subscription endpoint",
+        "Shows how to read character_count and character_limit",
+        "Displays subscription tier information"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Show me how to use async/await with the ElevenLabs Python SDK for concurrent API calls.",
+      "expected_output": "Python async code using AsyncElevenLabs client",
+      "files": [],
+      "expectations": [
+        "Uses 'from elevenlabs import AsyncElevenLabs'",
+        "Uses async/await syntax correctly",
+        "Shows asyncio.run() or similar for running async code",
+        "Demonstrates concurrent API calls with asyncio.gather or similar"
+      ]
+    }
+  ]
+}
